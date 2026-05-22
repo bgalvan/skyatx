@@ -38,7 +38,6 @@
     .filter-btn:hover { border-color: var(--black); color: var(--black); }
     .filter-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
 
-    /* MASONRY GRID */
     .gallery-grid {
       padding: 0 3rem 5rem;
       max-width: 1200px;
@@ -54,27 +53,16 @@
       overflow: hidden;
       cursor: pointer;
       background: var(--light);
+      display: block;
     }
 
     .gallery-item img {
       width: 100%;
       display: block;
-      transition: transform 0.5s ease, opacity 0.3s;
+      transition: transform 0.5s ease;
     }
 
     .gallery-item:hover img { transform: scale(1.04); }
-
-    .gallery-placeholder {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      color: var(--gray);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: var(--light);
-    }
 
     .gallery-item-overlay {
       position: absolute;
@@ -98,17 +86,75 @@
 
     .gallery-item:hover .gallery-item-label { opacity: 1; transform: translateY(0); }
 
+    .gallery-item.hidden { display: none; }
+
+    /* Loading & empty states */
+    .gallery-status {
+      padding: 0 3rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .loading-grid {
+      columns: 3;
+      column-gap: 4px;
+    }
+
+    .skeleton {
+      break-inside: avoid;
+      margin-bottom: 4px;
+      background: var(--light);
+      border-radius: 2px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 0;
+      color: var(--gray);
+      font-size: 14px;
+    }
+
+    .empty-state a { color: var(--black); }
+
+    .folder-section { margin-bottom: 3rem; }
+
+    .folder-heading {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      padding: 0 3rem;
+      max-width: 1200px;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .folder-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--light);
+    }
+
     @media (max-width: 900px) {
-      .gallery-grid { columns: 2; padding: 0 1.5rem 3rem; }
+      .gallery-grid, .loading-grid { columns: 2; padding: 0 1.5rem 3rem; }
       .gallery-header { padding: 4rem 1.5rem 2rem; }
+      .folder-heading { padding: 0 1.5rem; }
+      .gallery-status { padding: 0 1.5rem 3rem; }
     }
 
     @media (max-width: 500px) {
-      .gallery-grid { columns: 1; }
+      .gallery-grid, .loading-grid { columns: 1; }
     }
-
-    /* hidden filter state */
-    .gallery-item.hidden { display: none; }
   </style>
 </head>
 <body>
@@ -132,42 +178,13 @@
     <h1>Our work</h1>
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="photo">Photography</button>
-      <button class="filter-btn" data-filter="drone">Drone</button>
-      <button class="filter-btn" data-filter="video">Video</button>
+      <button class="filter-btn" data-filter="Photos">Photography</button>
+      <button class="filter-btn" data-filter="Drone">Drone</button>
+      <button class="filter-btn" data-filter="Video">Video</button>
     </div>
   </div>
 
-  <div class="gallery-grid" id="galleryGrid">
-    <!--
-      TO ADD YOUR IMAGES:
-      1. Create an "images" folder in your site folder
-      2. Upload your photos there
-      3. Replace each placeholder block with:
-
-      <div class="gallery-item" data-type="photo">
-        <img src="images/your-photo.jpg" alt="Property description">
-        <div class="gallery-item-overlay">
-          <span class="gallery-item-label">123 Main St</span>
-        </div>
-      </div>
-
-      Use data-type="photo", "drone", or "video" for filtering.
-    -->
-
-    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:320px">Add photo</div></div>
-    <div class="gallery-item" data-type="drone"><div class="gallery-placeholder" style="height:240px">Add drone photo</div></div>
-    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:280px">Add photo</div></div>
-    <div class="gallery-item" data-type="video"><div class="gallery-placeholder" style="height:200px">Add video thumbnail</div></div>
-    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:340px">Add photo</div></div>
-    <div class="gallery-item" data-type="drone"><div class="gallery-placeholder" style="height:260px">Add drone photo</div></div>
-    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:220px">Add photo</div></div>
-    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:300px">Add photo</div></div>
-    <div class="gallery-item" data-type="drone"><div class="gallery-placeholder" style="height:250px">Add drone photo</div></div>
-    <div class="gallery-item" data-type="video"><div class="gallery-placeholder" style="height:230px">Add video thumbnail</div></div>
-    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:290px">Add photo</div></div>
-    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:260px">Add photo</div></div>
-  </div>
+  <div id="galleryRoot"></div>
 </div>
 
 <footer>
@@ -177,16 +194,178 @@
 
 <script src="js/main.js"></script>
 <script>
+  const API_KEY     = 'AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw';
+  const ROOT_ID     = '1eSAKXzuxbWW01ASWjgqIRg2MnYcwNiQF';
+  const TYPE_ORDER  = ['Photos', 'Drone', 'Video'];
+  const TYPE_LABELS = { Photos: 'Photography', Drone: 'Drone', Video: 'Video' };
+
+  const root = document.getElementById('galleryRoot');
+  let allItems = [];
+  let activeFilter = 'all';
+
+  // ── API helpers ──────────────────────────────────────────────
+
+  async function listChildren(folderId) {
+    const url = `https://www.googleapis.com/drive/v3/files`
+      + `?q='${folderId}'+in+parents+and+trashed=false`
+      + `&fields=files(id,name,mimeType)`
+      + `&orderBy=name`
+      + `&key=${API_KEY}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Drive API error: ' + r.status);
+    const d = await r.json();
+    return d.files || [];
+  }
+
+  function thumbUrl(fileId) {
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+  }
+
+  function viewUrl(fileId) {
+    return `https://drive.google.com/file/d/${fileId}/view`;
+  }
+
+  // ── Render ───────────────────────────────────────────────────
+
+  function showLoading() {
+    const heights = [280,240,320,200,300,260,220,290,250];
+    root.innerHTML = `
+      <div class="gallery-status">
+        <div class="loading-grid">
+          ${heights.map(h => `<div class="skeleton" style="height:${h}px"></div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  function renderGallery() {
+    if (allItems.length === 0) {
+      root.innerHTML = `<div class="gallery-status"><div class="empty-state">
+        No images found. Add photos to your
+        <a href="https://drive.google.com/drive/folders/${ROOT_ID}" target="_blank">Google Drive folder</a>
+        and refresh.
+      </div></div>`;
+      return;
+    }
+
+    // Group by type
+    const byType = {};
+    allItems.forEach(item => {
+      if (!byType[item.type]) byType[item.type] = [];
+      byType[item.type].push(item);
+    });
+
+    const types = TYPE_ORDER.filter(t => byType[t] && byType[t].length > 0);
+    let html = '';
+
+    types.forEach(type => {
+      const items = byType[type];
+      const label = TYPE_LABELS[type] || type;
+      const sectionHidden = activeFilter !== 'all' && activeFilter !== type ? 'style="display:none"' : '';
+
+      html += `<div class="folder-section" data-type="${type}" ${sectionHidden}>`;
+      html += `<div class="folder-heading"><span>${label}</span></div>`;
+      html += `<div class="gallery-grid">`;
+
+      items.forEach(item => {
+        if (item.mimeType && item.mimeType.startsWith('video/')) {
+          html += `
+            <a class="gallery-item" href="${viewUrl(item.fileId)}" target="_blank" data-type="${type}">
+              <div style="background:var(--black);display:flex;align-items:center;justify-content:center;height:220px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(248,247,244,0.6)" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="rgba(248,247,244,0.6)" stroke="none"/>
+                </svg>
+              </div>
+              <div class="gallery-item-overlay">
+                <span class="gallery-item-label">${item.property}</span>
+              </div>
+            </a>`;
+        } else {
+          html += `
+            <a class="gallery-item" href="${viewUrl(item.fileId)}" target="_blank" data-type="${type}">
+              <img src="${thumbUrl(item.fileId)}" alt="${item.property} — ${label}" loading="lazy">
+              <div class="gallery-item-overlay">
+                <span class="gallery-item-label">${item.property}</span>
+              </div>
+            </a>`;
+        }
+      });
+
+      html += `</div></div>`;
+    });
+
+    root.innerHTML = html;
+
+    // Re-observe fade-in elements
+    document.querySelectorAll('.gallery-item').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transition = `opacity 0.4s ease ${Math.min(i * 0.03, 0.5)}s`;
+      setTimeout(() => { el.style.opacity = '1'; }, 50);
+    });
+  }
+
+  // ── Filter ───────────────────────────────────────────────────
+
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const filter = btn.dataset.filter;
-      document.querySelectorAll('.gallery-item').forEach(item => {
-        item.classList.toggle('hidden', filter !== 'all' && item.dataset.type !== filter);
+      activeFilter = btn.dataset.filter;
+      document.querySelectorAll('.folder-section').forEach(section => {
+        const show = activeFilter === 'all' || section.dataset.type === activeFilter;
+        section.style.display = show ? '' : 'none';
       });
     });
   });
+
+  // ── Load ─────────────────────────────────────────────────────
+
+  async function loadGallery() {
+    showLoading();
+    try {
+      // Get top-level type folders (Photos, Drone, Video)
+      const typeFolders = await listChildren(ROOT_ID);
+      const imageTypes = ['image/jpeg','image/png','image/webp','image/gif'];
+
+      for (const typeFolder of typeFolders) {
+        if (typeFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
+
+        // Get property subfolders within each type folder
+        const propertyFolders = await listChildren(typeFolder.id);
+
+        for (const propFolder of propertyFolders) {
+          if (propFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
+
+          // Get files within each property folder
+          const files = await listChildren(propFolder.id);
+
+          files.forEach(file => {
+            const isImage = imageTypes.includes(file.mimeType);
+            const isVideo = file.mimeType && file.mimeType.startsWith('video/');
+            if (isImage || isVideo) {
+              allItems.push({
+                fileId:   file.id,
+                name:     file.name,
+                mimeType: file.mimeType,
+                type:     typeFolder.name,
+                property: propFolder.name
+              });
+            }
+          });
+        }
+      }
+
+      renderGallery();
+    } catch (err) {
+      console.error(err);
+      root.innerHTML = `<div class="gallery-status"><div class="empty-state">
+        Couldn't load images. Make sure your Drive folder is set to
+        <strong>Anyone with the link can view</strong> and refresh.
+        <br><br><small>${err.message}</small>
+      </div></div>`;
+    }
+  }
+
+  loadGallery();
 </script>
 </body>
 </html>
