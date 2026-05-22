@@ -74,7 +74,7 @@
       transition: background 0.3s;
     }
 
-    .gallery-item:hover .gallery-item-overlay { background: rgba(14,14,14,0.35); }
+    .gallery-item:hover .gallery-item-overlay { background: rgba(14,14,14,0.38); }
 
     .gallery-item-label {
       color: var(--white);
@@ -86,20 +86,9 @@
 
     .gallery-item:hover .gallery-item-label { opacity: 1; transform: translateY(0); }
 
-    .gallery-item.hidden { display: none; }
-
-    /* Loading & empty states */
-    .gallery-status {
-      padding: 0 3rem 3rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .loading-grid {
-      columns: 3;
-      column-gap: 4px;
-    }
-
+    /* Loading skeletons */
+    .gallery-status { padding: 0 3rem 3rem; max-width: 1200px; margin: 0 auto; }
+    .loading-grid { columns: 3; column-gap: 4px; }
     .skeleton {
       break-inside: avoid;
       margin-bottom: 4px;
@@ -107,42 +96,116 @@
       border-radius: 2px;
       animation: pulse 1.5s ease-in-out infinite;
     }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 4rem 0;
-      color: var(--gray);
-      font-size: 14px;
-    }
-
-    .empty-state a { color: var(--black); }
+    .empty-state { text-align:center; padding:4rem 0; color:var(--gray); font-size:14px; }
+    .empty-state a { color:var(--black); }
 
     .folder-section { margin-bottom: 3rem; }
-
     .folder-heading {
-      font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--gray);
-      padding: 0 3rem;
-      max-width: 1200px;
-      margin: 0 auto 1rem;
+      font-size: 11px; font-weight: 400; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--gray);
+      padding: 0 3rem; max-width: 1200px; margin: 0 auto 1rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .folder-heading::after { content:''; flex:1; height:1px; background:var(--light); }
+
+    /* ── LIGHTBOX ─────────────────────────────────────────── */
+    .lb-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,10,0.96);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .lb-backdrop.open { display: flex; }
+
+    .lb-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      justify-content: center;
     }
 
-    .folder-heading::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--light);
+    .lb-img-wrap {
+      max-width: 90vw;
+      max-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lb-img-wrap img {
+      max-width: 90vw;
+      max-height: 88vh;
+      object-fit: contain;
+      display: block;
+      border-radius: 2px;
+      transition: opacity 0.2s;
+    }
+
+    .lb-img-wrap img.loading { opacity: 0.3; }
+
+    .lb-caption {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(248,247,244,0.6);
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .lb-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: rgba(248,247,244,0.7);
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+      transition: color 0.2s;
+      z-index: 10;
+    }
+    .lb-close:hover { color: var(--white); }
+
+    .lb-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(248,247,244,0.55);
+      font-size: 36px;
+      cursor: pointer;
+      padding: 1rem;
+      transition: color 0.2s;
+      z-index: 10;
+      line-height: 1;
+      user-select: none;
+    }
+    .lb-arrow:hover { color: var(--white); }
+    .lb-arrow.prev { left: 0.5rem; }
+    .lb-arrow.next { right: 0.5rem; }
+    .lb-arrow:disabled { opacity: 0.2; cursor: default; }
+
+    .lb-counter {
+      position: absolute;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: rgba(248,247,244,0.4);
     }
 
     @media (max-width: 900px) {
@@ -151,9 +214,9 @@
       .folder-heading { padding: 0 1.5rem; }
       .gallery-status { padding: 0 1.5rem 3rem; }
     }
-
     @media (max-width: 500px) {
       .gallery-grid, .loading-grid { columns: 1; }
+      .lb-arrow { font-size: 26px; padding: 0.5rem; }
     }
   </style>
 </head>
@@ -187,6 +250,20 @@
   <div id="galleryRoot"></div>
 </div>
 
+<!-- LIGHTBOX -->
+<div class="lb-backdrop" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <div class="lb-inner">
+    <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
+    <span class="lb-counter" id="lbCounter"></span>
+    <button class="lb-arrow prev" id="lbPrev" aria-label="Previous">&#8592;</button>
+    <div class="lb-img-wrap">
+      <img id="lbImg" src="" alt="">
+    </div>
+    <button class="lb-arrow next" id="lbNext" aria-label="Next">&#8594;</button>
+    <div class="lb-caption" id="lbCaption"></div>
+  </div>
+</div>
+
 <footer>
   <span>© 2026 SKYATX · Austin, TX</span>
   <span><a href="mailto:info@skyatx.com">info@skyatx.com</a></span>
@@ -194,17 +271,67 @@
 
 <script src="js/main.js"></script>
 <script>
-  const API_KEY     = 'AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw';
-  const ROOT_ID     = '1eSAKXzuxbWW01ASWjgqIRg2MnYcwNiQF';
-  const TYPE_ORDER  = ['Photos', 'Drone', 'Video'];
+  const API_KEY    = 'AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw';
+  const ROOT_ID    = '1eSAKXzuxbWW01ASWjgqIRg2MnYcwNiQF';
+  const TYPE_ORDER = ['Photos', 'Drone', 'Video'];
   const TYPE_LABELS = { Photos: 'Photography', Drone: 'Drone', Video: 'Video' };
 
-  const root = document.getElementById('galleryRoot');
+  const galleryRoot = document.getElementById('galleryRoot');
   let allItems = [];
   let activeFilter = 'all';
 
-  // ── API helpers ──────────────────────────────────────────────
+  // ── Lightbox state ───────────────────────────────────────────
+  let lbItems = [];   // flat list of currently-visible items
+  let lbIndex = 0;
 
+  const lb        = document.getElementById('lightbox');
+  const lbImg     = document.getElementById('lbImg');
+  const lbCaption = document.getElementById('lbCaption');
+  const lbCounter = document.getElementById('lbCounter');
+  const lbPrev    = document.getElementById('lbPrev');
+  const lbNext    = document.getElementById('lbNext');
+  const lbClose   = document.getElementById('lbClose');
+
+  function openLightbox(items, index) {
+    lbItems = items;
+    lbIndex = index;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    showLbImage();
+  }
+
+  function closeLightbox() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    lbImg.src = '';
+  }
+
+  function showLbImage() {
+    const item = lbItems[lbIndex];
+    lbImg.classList.add('loading');
+    lbImg.onload = () => lbImg.classList.remove('loading');
+    lbImg.src = `https://drive.google.com/thumbnail?id=${item.fileId}&sz=w1600`;
+    lbImg.alt = item.property;
+    lbCaption.textContent = item.property + (item.type ? '  ·  ' + (TYPE_LABELS[item.type] || item.type) : '');
+    lbCounter.textContent = (lbIndex + 1) + ' / ' + lbItems.length;
+    lbPrev.disabled = lbIndex === 0;
+    lbNext.disabled = lbIndex === lbItems.length - 1;
+  }
+
+  lbClose.addEventListener('click', closeLightbox);
+  lbPrev.addEventListener('click', () => { if (lbIndex > 0) { lbIndex--; showLbImage(); } });
+  lbNext.addEventListener('click', () => { if (lbIndex < lbItems.length - 1) { lbIndex++; showLbImage(); } });
+
+  lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
+
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft' && lbIndex > 0) { lbIndex--; showLbImage(); }
+    if (e.key === 'ArrowRight' && lbIndex < lbItems.length - 1) { lbIndex++; showLbImage(); }
+  });
+
+  // ── API helpers ──────────────────────────────────────────────
   async function listChildren(folderId) {
     const url = `https://www.googleapis.com/drive/v3/files`
       + `?q='${folderId}'+in+parents+and+trashed=false`
@@ -212,42 +339,34 @@
       + `&orderBy=name`
       + `&key=${API_KEY}`;
     const r = await fetch(url);
-    if (!r.ok) throw new Error('Drive API error: ' + r.status);
-    const d = await r.json();
-    return d.files || [];
-  }
-
-  function thumbUrl(fileId) {
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
-  }
-
-  function viewUrl(fileId) {
-    return `https://drive.google.com/file/d/${fileId}/view`;
+    if (!r.ok) throw new Error('Drive API error ' + r.status);
+    return (await r.json()).files || [];
   }
 
   // ── Render ───────────────────────────────────────────────────
+  function getVisibleItems() {
+    return activeFilter === 'all'
+      ? allItems
+      : allItems.filter(i => i.type === activeFilter);
+  }
 
   function showLoading() {
     const heights = [280,240,320,200,300,260,220,290,250];
-    root.innerHTML = `
-      <div class="gallery-status">
-        <div class="loading-grid">
-          ${heights.map(h => `<div class="skeleton" style="height:${h}px"></div>`).join('')}
-        </div>
-      </div>`;
+    galleryRoot.innerHTML = `<div class="gallery-status"><div class="loading-grid">
+      ${heights.map(h => `<div class="skeleton" style="height:${h}px"></div>`).join('')}
+    </div></div>`;
   }
 
   function renderGallery() {
     if (allItems.length === 0) {
-      root.innerHTML = `<div class="gallery-status"><div class="empty-state">
+      galleryRoot.innerHTML = `<div class="gallery-status"><div class="empty-state">
         No images found. Add photos to your
         <a href="https://drive.google.com/drive/folders/${ROOT_ID}" target="_blank">Google Drive folder</a>
-        and refresh.
+        and refresh the page.
       </div></div>`;
       return;
     }
 
-    // Group by type
     const byType = {};
     allItems.forEach(item => {
       if (!byType[item.type]) byType[item.type] = [];
@@ -260,84 +379,88 @@
     types.forEach(type => {
       const items = byType[type];
       const label = TYPE_LABELS[type] || type;
-      const sectionHidden = activeFilter !== 'all' && activeFilter !== type ? 'style="display:none"' : '';
+      const hidden = activeFilter !== 'all' && activeFilter !== type;
 
-      html += `<div class="folder-section" data-type="${type}" ${sectionHidden}>`;
+      html += `<div class="folder-section" data-type="${type}" ${hidden ? 'style="display:none"' : ''}>`;
       html += `<div class="folder-heading"><span>${label}</span></div>`;
       html += `<div class="gallery-grid">`;
 
-      items.forEach(item => {
+      items.forEach((item, i) => {
+        const globalIndex = allItems.indexOf(item);
         if (item.mimeType && item.mimeType.startsWith('video/')) {
           html += `
-            <a class="gallery-item" href="${viewUrl(item.fileId)}" target="_blank" data-type="${type}">
+            <div class="gallery-item" data-index="${globalIndex}" tabindex="0" role="button" aria-label="View ${item.property}">
               <div style="background:var(--black);display:flex;align-items:center;justify-content:center;height:220px;">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(248,247,244,0.6)" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="rgba(248,247,244,0.6)" stroke="none"/>
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(248,247,244,0.5)" stroke-width="1.2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polygon points="10,8 16,12 10,16" fill="rgba(248,247,244,0.5)" stroke="none"/>
                 </svg>
               </div>
               <div class="gallery-item-overlay">
                 <span class="gallery-item-label">${item.property}</span>
               </div>
-            </a>`;
+            </div>`;
         } else {
           html += `
-            <a class="gallery-item" href="${viewUrl(item.fileId)}" target="_blank" data-type="${type}">
-              <img src="${thumbUrl(item.fileId)}" alt="${item.property} — ${label}" loading="lazy">
+            <div class="gallery-item" data-index="${globalIndex}" tabindex="0" role="button" aria-label="View ${item.property}">
+              <img src="https://drive.google.com/thumbnail?id=${item.fileId}&sz=w800"
+                   alt="${item.property}" loading="lazy">
               <div class="gallery-item-overlay">
                 <span class="gallery-item-label">${item.property}</span>
               </div>
-            </a>`;
+            </div>`;
         }
       });
 
       html += `</div></div>`;
     });
 
-    root.innerHTML = html;
+    galleryRoot.innerHTML = html;
 
-    // Re-observe fade-in elements
-    document.querySelectorAll('.gallery-item').forEach((el, i) => {
+    // Attach lightbox click handlers
+    galleryRoot.querySelectorAll('.gallery-item').forEach(el => {
+      const handler = () => {
+        const index = parseInt(el.dataset.index);
+        const visible = getVisibleItems();
+        const visIndex = visible.indexOf(allItems[index]);
+        openLightbox(visible, visIndex >= 0 ? visIndex : 0);
+      };
+      el.addEventListener('click', handler);
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') handler(); });
+    });
+
+    // Staggered fade in
+    galleryRoot.querySelectorAll('.gallery-item').forEach((el, i) => {
       el.style.opacity = '0';
-      el.style.transition = `opacity 0.4s ease ${Math.min(i * 0.03, 0.5)}s`;
+      el.style.transition = `opacity 0.4s ease ${Math.min(i * 0.04, 0.6)}s`;
       setTimeout(() => { el.style.opacity = '1'; }, 50);
     });
   }
 
   // ── Filter ───────────────────────────────────────────────────
-
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       activeFilter = btn.dataset.filter;
       document.querySelectorAll('.folder-section').forEach(section => {
-        const show = activeFilter === 'all' || section.dataset.type === activeFilter;
-        section.style.display = show ? '' : 'none';
+        section.style.display = (activeFilter === 'all' || section.dataset.type === activeFilter) ? '' : 'none';
       });
     });
   });
 
   // ── Load ─────────────────────────────────────────────────────
-
   async function loadGallery() {
     showLoading();
+    const imageTypes = ['image/jpeg','image/png','image/webp','image/gif'];
     try {
-      // Get top-level type folders (Photos, Drone, Video)
       const typeFolders = await listChildren(ROOT_ID);
-      const imageTypes = ['image/jpeg','image/png','image/webp','image/gif'];
-
       for (const typeFolder of typeFolders) {
         if (typeFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
-
-        // Get property subfolders within each type folder
-        const propertyFolders = await listChildren(typeFolder.id);
-
-        for (const propFolder of propertyFolders) {
+        const propFolders = await listChildren(typeFolder.id);
+        for (const propFolder of propFolders) {
           if (propFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
-
-          // Get files within each property folder
           const files = await listChildren(propFolder.id);
-
           files.forEach(file => {
             const isImage = imageTypes.includes(file.mimeType);
             const isVideo = file.mimeType && file.mimeType.startsWith('video/');
@@ -353,14 +476,13 @@
           });
         }
       }
-
       renderGallery();
     } catch (err) {
       console.error(err);
-      root.innerHTML = `<div class="gallery-status"><div class="empty-state">
+      galleryRoot.innerHTML = `<div class="gallery-status"><div class="empty-state">
         Couldn't load images. Make sure your Drive folder is set to
         <strong>Anyone with the link can view</strong> and refresh.
-        <br><br><small>${err.message}</small>
+        <br><br><small style="color:#bbb">${err.message}</small>
       </div></div>`;
     }
   }
