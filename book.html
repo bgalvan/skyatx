@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Shoot — SKYATX</title>
+  <meta name="description" content="Book your real estate photography or videography session with SKYATX Austin.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .book-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 5rem 3rem 5rem;
+    }
+
+    .book-header { margin-bottom: 3rem; }
+    .book-header p { color: var(--gray); margin-top: 0.75rem; font-size: 15px; }
+
+    .form-section { margin-bottom: 2.5rem; }
+
+    .section-rule {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-rule span {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      white-space: nowrap;
+    }
+
+    .section-rule::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--light);
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .field-row.full { grid-template-columns: 1fr; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--black);
+      background: var(--white);
+      border: 1px solid var(--light);
+      border-radius: 2px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a09a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus { border-color: var(--black); }
+
+    .field input.error { border-color: #c0392b; }
+
+    .field textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    /* SERVICES */
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .service-card {
+      border: 1px solid var(--light);
+      border-radius: 2px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.15s;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      user-select: none;
+    }
+
+    .service-card:hover { border-color: #bbb; }
+
+    .service-card.selected {
+      border-color: var(--black);
+      background: #f5f4f1;
+    }
+
+    .service-card input[type="checkbox"] {
+      margin-top: 2px;
+      flex-shrink: 0;
+      accent-color: var(--black);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    .service-info { flex: 1; }
+    .service-name { font-size: 13px; font-weight: 400; color: var(--black); }
+    .service-desc { font-size: 12px; color: var(--gray); margin-top: 2px; line-height: 1.4; }
+    .service-price { font-size: 13px; color: #555; margin-top: 6px; font-family: var(--serif); }
+
+    /* ESTIMATE */
+    .estimate-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-top: 1px solid var(--light);
+      border-bottom: 1px solid var(--light);
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    .estimate-label { font-size: 13px; color: var(--gray); letter-spacing: 0.05em; text-transform: uppercase; }
+
+    .estimate-val {
+      font-family: var(--serif);
+      font-size: 2rem;
+      font-weight: 300;
+    }
+
+    .estimate-note { font-size: 12px; color: var(--gray); line-height: 1.6; }
+
+    /* SUBMIT */
+    .submit-btn {
+      width: 100%;
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 2px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .submit-btn:hover { opacity: 0.78; }
+    .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .legal-note {
+      font-size: 12px;
+      color: var(--gray);
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+
+    /* SUCCESS */
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 4rem 0;
+    }
+
+    .success-check {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--black);
+      color: var(--white);
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .success-state h2 { margin-bottom: 0.5rem; }
+    .success-state p { color: var(--gray); font-size: 15px; }
+
+    @media (max-width: 600px) {
+      .book-wrap { padding: 4rem 1.5rem 4rem; }
+      .field-row { grid-template-columns: 1fr; }
+      .services-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">SKYATX</a>
+  <button class="nav-toggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <a href="book.html" class="nav-book">Book a shoot</a>
+</nav>
+
+<div class="page">
+  <div class="book-wrap">
+
+    <div id="bookForm">
+      <div class="book-header fade-in">
+        <span class="eyebrow">Direct booking</span>
+        <h1>Book a shoot</h1>
+        <p>Fill out the form below and we'll confirm your appointment within 24 hours.</p>
+      </div>
+
+      <!-- YOUR INFO -->
+      <div class="form-section fade-in">
+        <div class="section-rule"><span>Your info</span></div>
+        <div class="field-row">
+          <div class="field">
+            <label for="fname">First name</label>
+            <input type="text" id="fname" placeholder="Jane">
+          </div>
+          <div class="field">
+            <label for="lname">Last name</label>
+            <input type="text" id="lname" placeholder="Smith">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="jane@realty.com">
+          </div>
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" placeholder="(512) 000-0000">
+          </div>
+        </div>
+      </div>
+
+      <!-- PROPERTY -->
+      <div class="form-section fade-in">
+        <div class="section-rule"><span>Property</span></div>
+        <div class="field-row full">
+          <div class="field">
+            <label for="address">Property address</label>
+            <input type="text" id="address" placeholder="123 Main St, Austin, TX">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="proptype">Property type</label>
+            <select id="proptype">
+              <option value="">Select type</option>
+              <option>Single family home</option>
+              <option>Condo / townhome</option>
+              <option>Multi-family</option>
+              <option>Commercial</option>
+              <option>Land / lot</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sqft">Square footage</label>
+            <select id="sqft">
+              <option value="">Select range</option>
+              <option>Under 1,500 sqft</option>
+              <option>1,500 – 2,500 sqft</option>
+              <option>2,500 – 4,000 sqft</option>
+              <option>4,000+ sqft</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="shootdate">Preferred date</label>
+            <input type="date" id="shootdate">
+          </div>
+          <div class="field">
+            <label for="shoottime">Preferred time</label>
+            <select id="shoottime">
+              <option value="">Select time</option>
+              <option>Morning (8am – 11am)</option>
+              <option>Midday (11am – 2pm)</option>
+              <option>Afternoon (2pm – 5pm)</option>
+              <option>Twilight / sunset</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="form-section fade-in">
+        <div class="section-rule"><span>Services</span></div>
+        <div class="services-grid">
+          <label class="service-card" id="sc-photos">
+            <input type="checkbox" data-price="225" onchange="updateTotal(this,'sc-photos')">
+            <div class="service-info">
+              <div class="service-name">Standard ground photos</div>
+              <div class="service-desc">40 professionally edited images</div>
+              <div class="service-price">$225</div>
+            </div>
+          </label>
+          <label class="service-card" id="sc-drone">
+            <input type="checkbox" data-price="75" onchange="updateTotal(this,'sc-drone')">
+            <div class="service-info">
+              <div class="service-name">Drone photo add-on</div>
+              <div class="service-desc">15–20 aerial images</div>
+              <div class="service-price">+$75</div>
+            </div>
+          </label>
+          <label class="service-card" id="sc-matterport">
+            <input type="checkbox" data-price="75" onchange="updateTotal(this,'sc-matterport')">
+            <div class="service-info">
+              <div class="service-name">Matterport 3D add-on</div>
+              <div class="service-desc">Interactive 3D walkthrough</div>
+              <div class="service-price">+$75</div>
+            </div>
+          </label>
+          <label class="service-card" id="sc-twilight">
+            <input type="checkbox" data-price="75" onchange="updateTotal(this,'sc-twilight')">
+            <div class="service-info">
+              <div class="service-name">Twilight add-on</div>
+              <div class="service-desc">Shoot at sunset</div>
+              <div class="service-price">+$75</div>
+            </div>
+          </label>
+          <label class="service-card" id="sc-video" style="grid-column:1/-1">
+            <input type="checkbox" data-price="300" onchange="updateTotal(this,'sc-video')">
+            <div class="service-info">
+              <div class="service-name">Edited video tour</div>
+              <div class="service-desc">Full cinematic walkthrough, edited and delivered</div>
+              <div class="service-price">$300</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="estimate-row">
+          <span class="estimate-label">Estimated total</span>
+          <span class="estimate-val" id="totalVal">$0</span>
+        </div>
+        <p class="estimate-note">Final price may vary by location. A mileage fee may apply outside the Austin metro area — we'll confirm before your shoot.</p>
+      </div>
+
+      <!-- NOTES -->
+      <div class="form-section fade-in">
+        <div class="section-rule"><span>Notes</span></div>
+        <div class="field">
+          <label for="notes">Gate codes, parking, or anything else we should know</label>
+          <textarea id="notes" placeholder="Optional"></textarea>
+        </div>
+      </div>
+
+      <div class="fade-in">
+        <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Request booking</button>
+        <p class="legal-note">By submitting you agree to be contacted at the email and phone provided.</p>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-state" id="successState">
+      <div class="success-check">✓</div>
+      <h2>Booking request received!</h2>
+      <p>We'll be in touch within 24 hours to confirm your appointment.</p>
+      <a href="index.html" class="btn btn-outline" style="margin-top:2rem">Back to home</a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 SKYATX · Austin, TX</span>
+  <span><a href="mailto:info@skyatx.com">info@skyatx.com</a></span>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+  var runningTotal = 0;
+
+  function updateTotal(cb, cardId) {
+    var card = document.getElementById(cardId);
+    var price = parseInt(cb.dataset.price);
+    runningTotal += cb.checked ? price : -price;
+    document.getElementById('totalVal').textContent = '$' + runningTotal.toLocaleString();
+    card.classList.toggle('selected', cb.checked);
+  }
+
+  function handleSubmit() {
+    var required = ['fname','lname','email','phone','address'];
+    var valid = true;
+    required.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('error'); valid = false; }
+      else el.classList.remove('error');
+    });
+
+    var boxes = document.querySelectorAll('.services-grid input[type="checkbox"]');
+    var anyChecked = Array.prototype.some.call(boxes, function(b) { return b.checked; });
+    if (!anyChecked) { alert('Please select at least one service.'); valid = false; }
+    if (!valid) return;
+
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    var selected = Array.prototype.filter.call(boxes, function(b) { return b.checked; })
+      .map(function(b) { return b.closest('.service-card').querySelector('.service-name').textContent; })
+      .join(', ');
+
+    // ─────────────────────────────────────────────────────────────
+    // SETUP: Replace YOUR_FORM_ID with your Formspree form ID.
+    // Go to formspree.io → New Form → connect to info@skyatx.com
+    // Your ID looks like: xpwzabcd
+    // ─────────────────────────────────────────────────────────────
+    fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+        property_type: document.getElementById('proptype').value,
+        sqft: document.getElementById('sqft').value,
+        shoot_date: document.getElementById('shootdate').value,
+        shoot_time: document.getElementById('shoottime').value,
+        services: selected,
+        estimated_total: '$' + runningTotal.toLocaleString(),
+        notes: document.getElementById('notes').value
+      })
+    })
+    .then(function(r) {
+      if (r.ok) {
+        document.getElementById('bookForm').style.display = 'none';
+        document.getElementById('successState').style.display = 'block';
+      } else { throw new Error(); }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Request booking';
+      alert('Something went wrong. Please email info@skyatx.com directly.');
+    });
+  }
+</script>
+</body>
+</html>

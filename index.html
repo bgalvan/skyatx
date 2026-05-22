@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKYATX — Austin Real Estate Photography & Videography</title>
+  <meta name="description" content="Professional real estate photography, videography, and drone services based in Austin, TX.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 4rem;
+      position: relative;
+      background: var(--black);
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(14,14,14,0.2) 0%, rgba(14,14,14,0.65) 100%);
+      z-index: 1;
+    }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.7;
+    }
+
+    /* Cinematic placeholder when no image */
+    .hero-placeholder {
+      position: absolute;
+      inset: 0;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-placeholder-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 3px;
+      width: 100%;
+      height: 100%;
+      opacity: 0.18;
+    }
+
+    .hero-placeholder-grid div { background: #333; }
+    .hero-placeholder-grid div:nth-child(2) { background: #2a2a2a; }
+    .hero-placeholder-grid div:nth-child(4) { background: #252525; }
+    .hero-placeholder-grid div:nth-child(6) { background: #2e2e2e; }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+    }
+
+    .hero-content .display { color: var(--white); }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .hero-meta p {
+      font-size: 14px;
+      color: rgba(248,247,244,0.65);
+      letter-spacing: 0.03em;
+    }
+
+    @media (max-width: 768px) {
+      .hero { padding: 0 1.5rem 3rem; }
+      .hero-meta { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+
+    /* SERVICES STRIP */
+    .services-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--light);
+      border-bottom: 1px solid var(--light);
+    }
+
+    .service-item {
+      padding: 2.5rem 3rem;
+      border-right: 1px solid var(--light);
+    }
+
+    .service-item:last-child { border-right: none; }
+
+    .service-item h3 {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+
+    .service-item p { font-size: 14px; color: var(--gray); }
+
+    @media (max-width: 768px) {
+      .services-strip { grid-template-columns: 1fr; }
+      .service-item { border-right: none; border-bottom: 1px solid var(--light); padding: 2rem 1.5rem; }
+      .service-item:last-child { border-bottom: none; }
+    }
+
+    /* INTRO */
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    .intro-grid .intro-text p { font-size: 16px; color: #555; margin-bottom: 1.5rem; }
+
+    .intro-img-placeholder {
+      aspect-ratio: 4/5;
+      background: var(--light);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--gray);
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 900px) {
+      .intro-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .intro-img-placeholder { aspect-ratio: 16/9; }
+    }
+
+    /* RECENT WORK */
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+    }
+
+    .work-item {
+      aspect-ratio: 1;
+      background: var(--light);
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .work-item:first-child {
+      grid-column: span 2;
+      aspect-ratio: 2/1;
+    }
+
+    .work-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .work-item:hover img { transform: scale(1.04); }
+
+    .work-placeholder {
+      width: 100%;
+      height: 100%;
+      background: var(--light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--gray);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .work-grid { grid-template-columns: 1fr 1fr; }
+      .work-item:first-child { grid-column: span 2; aspect-ratio: 16/9; }
+    }
+
+    /* CTA */
+    .cta-band {
+      background: var(--black);
+      padding: 5rem 3rem;
+      text-align: center;
+    }
+
+    .cta-band h2 { color: var(--white); margin-bottom: 0.75rem; }
+    .cta-band p { color: rgba(248,247,244,0.55); font-size: 15px; margin-bottom: 2rem; }
+
+    @media (max-width: 600px) {
+      .cta-band { padding: 3.5rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">SKYATX</a>
+  <button class="nav-toggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <a href="book.html" class="nav-book">Book a shoot</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-placeholder">
+    <div class="hero-placeholder-grid">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div></div>
+    </div>
+  </div>
+  <div class="hero-bg"></div>
+  <!-- Replace the placeholder above with: <img class="hero-img" src="images/hero.jpg" alt="Austin aerial photography"> -->
+  <div class="hero-content">
+    <p class="eyebrow" style="color:rgba(248,247,244,0.5)">Austin, Texas</p>
+    <h1 class="display">Real estate<br><em>elevated.</em></h1>
+    <div class="hero-meta">
+      <p>Photography · Videography · Drone · Matterport</p>
+      <a href="book.html" class="btn btn-dark" style="background:var(--white);color:var(--black)">Book a shoot</a>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES STRIP -->
+<div class="services-strip">
+  <div class="service-item fade-in">
+    <h3>Photography</h3>
+    <p>40 professionally edited ground-level images that showcase every room and angle.</p>
+  </div>
+  <div class="service-item fade-in" style="transition-delay:0.1s">
+    <h3>Drone & Aerial</h3>
+    <p>FAA Part 107 certified pilots capturing your property and its surroundings from above.</p>
+  </div>
+  <div class="service-item fade-in" style="transition-delay:0.2s">
+    <h3>Video & Matterport</h3>
+    <p>Cinematic video tours and 3D walkthroughs that bring listings to life online.</p>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="section">
+  <div class="intro-grid">
+    <div class="intro-text fade-in">
+      <span class="eyebrow">About SKYATX</span>
+      <h2 style="margin-bottom:1.5rem">Austin's real estate<br>visual specialists</h2>
+      <p>We're FAA Part 107 certified drone pilots and professional photographers serving Austin and the surrounding area. Every shoot is crafted to help agents sell faster and for more.</p>
+      <p>From intimate condos in East Austin to sprawling Hill Country estates — we bring the same meticulous eye to every property.</p>
+      <a href="gallery.html" class="btn btn-outline" style="margin-top:0.5rem">View our work</a>
+    </div>
+    <div class="intro-img-placeholder fade-in" style="transition-delay:0.15s">
+      <!-- Replace with: <img src="images/about.jpg" alt="SKYATX photographer"> -->
+      Add your photo here
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- RECENT WORK -->
+<div class="section">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem">
+    <div class="fade-in">
+      <span class="eyebrow">Portfolio</span>
+      <h2>Recent work</h2>
+    </div>
+    <a href="gallery.html" class="btn btn-outline fade-in" style="margin-bottom:4px">View all</a>
+  </div>
+  <div class="work-grid fade-in">
+    <div class="work-item"><div class="work-placeholder">Add image</div></div>
+    <div class="work-item"><div class="work-placeholder">Add image</div></div>
+    <div class="work-item"><div class="work-placeholder">Add image</div></div>
+    <div class="work-item"><div class="work-placeholder">Add image</div></div>
+    <div class="work-item"><div class="work-placeholder">Add image</div></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-band">
+  <h2 class="fade-in">Ready to list?</h2>
+  <p class="fade-in">Book your shoot online — we'll confirm within 24 hours.</p>
+  <a href="book.html" class="btn fade-in" style="background:var(--white);color:var(--black)">Book a shoot</a>
+</div>
+
+<footer>
+  <span>© 2026 SKYATX · Austin, TX</span>
+  <span><a href="mailto:info@skyatx.com">info@skyatx.com</a></span>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

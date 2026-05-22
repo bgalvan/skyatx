@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery — SKYATX</title>
+  <meta name="description" content="Real estate photography and videography portfolio — SKYATX Austin.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .gallery-header {
+      padding: 5rem 3rem 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.1rem;
+      border: 1px solid var(--light);
+      border-radius: 2px;
+      background: transparent;
+      color: var(--gray);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover { border-color: var(--black); color: var(--black); }
+    .filter-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+
+    /* MASONRY GRID */
+    .gallery-grid {
+      padding: 0 3rem 5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      columns: 3;
+      column-gap: 4px;
+    }
+
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 4px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--light);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      transition: transform 0.5s ease, opacity 0.3s;
+    }
+
+    .gallery-item:hover img { transform: scale(1.04); }
+
+    .gallery-placeholder {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--gray);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--light);
+    }
+
+    .gallery-item-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(14,14,14,0);
+      display: flex;
+      align-items: flex-end;
+      padding: 1rem;
+      transition: background 0.3s;
+    }
+
+    .gallery-item:hover .gallery-item-overlay { background: rgba(14,14,14,0.35); }
+
+    .gallery-item-label {
+      color: var(--white);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .gallery-item:hover .gallery-item-label { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 900px) {
+      .gallery-grid { columns: 2; padding: 0 1.5rem 3rem; }
+      .gallery-header { padding: 4rem 1.5rem 2rem; }
+    }
+
+    @media (max-width: 500px) {
+      .gallery-grid { columns: 1; }
+    }
+
+    /* hidden filter state */
+    .gallery-item.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">SKYATX</a>
+  <button class="nav-toggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="gallery.html">Gallery</a></li>
+    <li><a href="pricing.html">Pricing</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <a href="book.html" class="nav-book">Book a shoot</a>
+</nav>
+
+<div class="page">
+  <div class="gallery-header fade-in">
+    <span class="eyebrow">Portfolio</span>
+    <h1>Our work</h1>
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="photo">Photography</button>
+      <button class="filter-btn" data-filter="drone">Drone</button>
+      <button class="filter-btn" data-filter="video">Video</button>
+    </div>
+  </div>
+
+  <div class="gallery-grid" id="galleryGrid">
+    <!--
+      TO ADD YOUR IMAGES:
+      1. Create an "images" folder in your site folder
+      2. Upload your photos there
+      3. Replace each placeholder block with:
+
+      <div class="gallery-item" data-type="photo">
+        <img src="images/your-photo.jpg" alt="Property description">
+        <div class="gallery-item-overlay">
+          <span class="gallery-item-label">123 Main St</span>
+        </div>
+      </div>
+
+      Use data-type="photo", "drone", or "video" for filtering.
+    -->
+
+    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:320px">Add photo</div></div>
+    <div class="gallery-item" data-type="drone"><div class="gallery-placeholder" style="height:240px">Add drone photo</div></div>
+    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:280px">Add photo</div></div>
+    <div class="gallery-item" data-type="video"><div class="gallery-placeholder" style="height:200px">Add video thumbnail</div></div>
+    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:340px">Add photo</div></div>
+    <div class="gallery-item" data-type="drone"><div class="gallery-placeholder" style="height:260px">Add drone photo</div></div>
+    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:220px">Add photo</div></div>
+    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:300px">Add photo</div></div>
+    <div class="gallery-item" data-type="drone"><div class="gallery-placeholder" style="height:250px">Add drone photo</div></div>
+    <div class="gallery-item" data-type="video"><div class="gallery-placeholder" style="height:230px">Add video thumbnail</div></div>
+    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:290px">Add photo</div></div>
+    <div class="gallery-item" data-type="photo"><div class="gallery-placeholder" style="height:260px">Add photo</div></div>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 SKYATX · Austin, TX</span>
+  <span><a href="mailto:info@skyatx.com">info@skyatx.com</a></span>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.gallery-item').forEach(item => {
+        item.classList.toggle('hidden', filter !== 'all' && item.dataset.type !== filter);
+      });
+    });
+  });
+</script>
+</body>
+</html>
