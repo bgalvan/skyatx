@@ -34,6 +34,7 @@
       cursor: pointer;
       transition: all 0.2s;
     }
+
     .filter-btn:hover { border-color: var(--black); color: var(--black); }
     .filter-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
 
@@ -81,10 +82,11 @@
       opacity: 0;
       transform: translateY(6px);
       transition: opacity 0.3s, transform 0.3s;
-      text-transform: capitalize;
     }
+
     .gallery-item:hover .gallery-item-label { opacity: 1; transform: translateY(0); }
 
+    /* Loading skeletons */
     .gallery-status { padding: 0 3rem 3rem; max-width: 1200px; margin: 0 auto; }
     .loading-grid { columns: 3; column-gap: 4px; }
     .skeleton {
@@ -96,7 +98,8 @@
     }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    .empty-state { text-align:center; padding:4rem 0; color:var(--gray); font-size:14px; line-height:2; }
+    .empty-state { text-align:center; padding:4rem 0; color:var(--gray); font-size:14px; }
+    .empty-state a { color:var(--black); }
 
     .folder-section { margin-bottom: 3rem; }
     .folder-heading {
@@ -107,86 +110,113 @@
     }
     .folder-heading::after { content:''; flex:1; height:1px; background:var(--light); }
 
-    /* ── LIGHTBOX ───────────────────────────────────────────── */
-    .lb {
+    /* ── LIGHTBOX ─────────────────────────────────────────── */
+    .lb-backdrop {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(8,8,8,0.97);
+      background: rgba(10,10,10,0.96);
       z-index: 1000;
       align-items: center;
       justify-content: center;
     }
-    .lb.open { display: flex; }
+    .lb-backdrop.open { display: flex; }
 
-    .lb-img-wrap {
-      max-width: 88vw;
-      max-height: 85vh;
+    .lb-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
+    }
+
+    .lb-img-wrap {
+      max-width: 90vw;
+      max-height: 88vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .lb-img-wrap img {
-      max-width: 88vw;
-      max-height: 85vh;
+      max-width: 90vw;
+      max-height: 88vh;
       object-fit: contain;
       display: block;
       border-radius: 2px;
-      transition: opacity 0.25s;
+      transition: opacity 0.2s;
     }
-    .lb-img-wrap img.fading { opacity: 0; }
+
+    .lb-img-wrap img.loading { opacity: 0.3; }
+
+    .lb-caption {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(248,247,244,0.6);
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      text-align: center;
+    }
 
     .lb-close {
-      position: fixed;
-      top: 1.25rem; right: 1.5rem;
-      background: none; border: none;
-      color: rgba(248,247,244,0.6);
-      font-size: 32px; cursor: pointer;
-      padding: 4px 10px; line-height: 1;
-      transition: color 0.2s; z-index: 10;
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: rgba(248,247,244,0.7);
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+      transition: color 0.2s;
+      z-index: 10;
     }
     .lb-close:hover { color: var(--white); }
 
     .lb-arrow {
-      position: fixed;
-      top: 50%; transform: translateY(-50%);
-      background: none; border: none;
-      color: rgba(248,247,244,0.5);
-      font-size: 2.5rem; cursor: pointer;
-      padding: 1.5rem 1.25rem; line-height: 1;
-      transition: color 0.2s; z-index: 10;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(248,247,244,0.55);
+      font-size: 36px;
+      cursor: pointer;
+      padding: 1rem;
+      transition: color 0.2s;
+      z-index: 10;
+      line-height: 1;
       user-select: none;
     }
     .lb-arrow:hover { color: var(--white); }
-    .lb-arrow:disabled { opacity: 0.15; cursor: default; }
-    .lb-prev { left: 0; }
-    .lb-next { right: 0; }
+    .lb-arrow.prev { left: 0.5rem; }
+    .lb-arrow.next { right: 0.5rem; }
+    .lb-arrow:disabled { opacity: 0.2; cursor: default; }
 
     .lb-counter {
-      position: fixed;
-      top: 1.5rem; left: 50%; transform: translateX(-50%);
-      font-size: 12px; letter-spacing: 0.08em;
-      color: rgba(248,247,244,0.35);
-    }
-
-    .lb-caption {
-      position: fixed;
-      bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-      font-size: 13px; letter-spacing: 0.04em;
-      color: rgba(248,247,244,0.5);
-      white-space: nowrap;
+      position: absolute;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: rgba(248,247,244,0.4);
     }
 
     @media (max-width: 900px) {
       .gallery-grid, .loading-grid { columns: 2; padding: 0 1.5rem 3rem; }
       .gallery-header { padding: 4rem 1.5rem 2rem; }
-      .folder-heading, .gallery-status { padding: 0 1.5rem; }
+      .folder-heading { padding: 0 1.5rem; }
+      .gallery-status { padding: 0 1.5rem 3rem; }
     }
     @media (max-width: 500px) {
       .gallery-grid, .loading-grid { columns: 1; }
-      .lb-arrow { font-size: 1.75rem; padding: 1rem 0.75rem; }
+      .lb-arrow { font-size: 26px; padding: 0.5rem; }
     }
   </style>
 </head>
@@ -211,24 +241,27 @@
     <h1>Our work</h1>
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="photos">Photography</button>
-      <button class="filter-btn" data-filter="drone">Drone</button>
-      <button class="filter-btn" data-filter="video">Video</button>
+      <button class="filter-btn" data-filter="Photos">Photography</button>
+      <button class="filter-btn" data-filter="Drone">Drone</button>
+      <button class="filter-btn" data-filter="Video">Video</button>
     </div>
   </div>
+
   <div id="galleryRoot"></div>
 </div>
 
 <!-- LIGHTBOX -->
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Image lightbox">
-  <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
-  <span class="lb-counter" id="lbCounter"></span>
-  <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Previous image">&#8592;</button>
-  <div class="lb-img-wrap">
-    <img id="lbImg" src="" alt="">
+<div class="lb-backdrop" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <div class="lb-inner">
+    <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
+    <span class="lb-counter" id="lbCounter"></span>
+    <button class="lb-arrow prev" id="lbPrev" aria-label="Previous">&#8592;</button>
+    <div class="lb-img-wrap">
+      <img id="lbImg" src="" alt="">
+    </div>
+    <button class="lb-arrow next" id="lbNext" aria-label="Next">&#8594;</button>
+    <div class="lb-caption" id="lbCaption"></div>
   </div>
-  <button class="lb-arrow lb-next" id="lbNext" aria-label="Next image">&#8594;</button>
-  <div class="lb-caption" id="lbCaption"></div>
 </div>
 
 <footer>
@@ -238,59 +271,20 @@
 
 <script src="js/main.js"></script>
 <script>
-  // ── Config ───────────────────────────────────────────────────
-  const CLOUD = 'dzw3qssgp';
-  const ROOT_FOLDER = 'skyatx';
-  const TYPE_ORDER  = ['photos','drone','video'];
-  const TYPE_LABELS = { photos:'Photography', drone:'Drone', video:'Video' };
+  const API_KEY    = 'AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw';
+  const ROOT_ID    = '1eSAKXzuxbWW01ASWjgqIRg2MnYcwNiQF';
+  const TYPE_ORDER = ['Photos', 'Drone', 'Video'];
+  const TYPE_LABELS = { Photos: 'Photography', Drone: 'Drone', Video: 'Video' };
 
   const galleryRoot = document.getElementById('galleryRoot');
-  let allItems   = [];
+  let allItems = [];
   let activeFilter = 'all';
 
-  // ── Cloudinary URL helpers ───────────────────────────────────
-  function thumbUrl(publicId) {
-    return `https://res.cloudinary.com/${CLOUD}/image/upload/c_fill,w_800,q_auto,f_auto/${publicId}`;
-  }
-
-  function fullUrl(publicId) {
-    return `https://res.cloudinary.com/${CLOUD}/image/upload/c_limit,w_1800,q_auto,f_auto/${publicId}`;
-  }
-
-  function isVideo(resourceType) { return resourceType === 'video'; }
-
-  // ── Cloudinary Search API ────────────────────────────────────
-  async function fetchResources() {
-    // Use the resource list endpoint — reads all images under the skyatx/ folder
-    const url = `https://res.cloudinary.com/${CLOUD}/image/list/${ROOT_FOLDER}.json`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('Could not load images (status ' + r.status + '). Make sure Resource list is enabled in Cloudinary Settings → Security.');
-    const data = await r.json();
-    return data.resources || [];
-  }
-
-  // ── Parse folder structure ───────────────────────────────────
-  // Expected public_id format: skyatx/photos/property-name/filename
-  function parseItem(resource) {
-    const parts = resource.public_id.split('/');
-    // parts[0] = skyatx, parts[1] = type, parts[2] = property, parts[3] = filename
-    if (parts.length < 3) return null;
-    const type     = parts[1].toLowerCase();
-    const property = parts[2] ? parts[2].replace(/-/g, ' ') : 'Property';
-    return {
-      publicId:     resource.public_id,
-      type:         type,
-      property:     property,
-      resourceType: resource.resource_type || 'image',
-      format:       resource.format
-    };
-  }
-
-  // ── Lightbox ─────────────────────────────────────────────────
-  let lbItems = [];
+  // ── Lightbox state ───────────────────────────────────────────
+  let lbItems = [];   // flat list of currently-visible items
   let lbIndex = 0;
 
-  const lb        = document.getElementById('lb');
+  const lb        = document.getElementById('lightbox');
   const lbImg     = document.getElementById('lbImg');
   const lbCaption = document.getElementById('lbCaption');
   const lbCounter = document.getElementById('lbCounter');
@@ -303,67 +297,72 @@
     lbIndex = index;
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
-    showLbSlide(false);
+    showLbImage();
   }
 
   function closeLightbox() {
     lb.classList.remove('open');
     document.body.style.overflow = '';
+    lbImg.src = '';
   }
 
-  function showLbSlide(animate) {
+  function showLbImage() {
     const item = lbItems[lbIndex];
-    if (animate) {
-      lbImg.classList.add('fading');
-      setTimeout(() => {
-        setLbContent(item);
-        lbImg.classList.remove('fading');
-      }, 200);
-    } else {
-      setLbContent(item);
-    }
+    lbImg.classList.add('loading');
+    lbImg.onload = () => lbImg.classList.remove('loading');
+    lbImg.src = `https://drive.google.com/thumbnail?id=${item.fileId}&sz=w1600`;
+    lbImg.alt = item.property;
+    lbCaption.textContent = item.property + (item.type ? '  ·  ' + (TYPE_LABELS[item.type] || item.type) : '');
+    lbCounter.textContent = (lbIndex + 1) + ' / ' + lbItems.length;
     lbPrev.disabled = lbIndex === 0;
     lbNext.disabled = lbIndex === lbItems.length - 1;
-    lbCounter.textContent = (lbIndex + 1) + ' / ' + lbItems.length;
-  }
-
-  function setLbContent(item) {
-    lbImg.src = fullUrl(item.publicId);
-    lbImg.alt = item.property;
-    lbCaption.textContent = item.property
-      + (item.type && TYPE_LABELS[item.type] ? '  ·  ' + TYPE_LABELS[item.type] : '');
   }
 
   lbClose.addEventListener('click', closeLightbox);
-  lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
-  lbPrev.addEventListener('click', () => { if (lbIndex > 0) { lbIndex--; showLbSlide(true); } });
-  lbNext.addEventListener('click', () => { if (lbIndex < lbItems.length-1) { lbIndex++; showLbSlide(true); } });
+  lbPrev.addEventListener('click', () => { if (lbIndex > 0) { lbIndex--; showLbImage(); } });
+  lbNext.addEventListener('click', () => { if (lbIndex < lbItems.length - 1) { lbIndex++; showLbImage(); } });
 
-  document.addEventListener('keydown', e => {
+  lb.addEventListener('click', (e) => { if (e.target === lb) closeLightbox(); });
+
+  document.addEventListener('keydown', (e) => {
     if (!lb.classList.contains('open')) return;
     if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft'  && lbIndex > 0) { lbIndex--; showLbSlide(true); }
-    if (e.key === 'ArrowRight' && lbIndex < lbItems.length-1) { lbIndex++; showLbSlide(true); }
+    if (e.key === 'ArrowLeft' && lbIndex > 0) { lbIndex--; showLbImage(); }
+    if (e.key === 'ArrowRight' && lbIndex < lbItems.length - 1) { lbIndex++; showLbImage(); }
   });
 
+  // ── API helpers ──────────────────────────────────────────────
+  async function listChildren(folderId) {
+    const url = `https://www.googleapis.com/drive/v3/files`
+      + `?q='${folderId}'+in+parents+and+trashed=false`
+      + `&fields=files(id,name,mimeType)`
+      + `&orderBy=name`
+      + `&key=${API_KEY}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Drive API error ' + r.status);
+    return (await r.json()).files || [];
+  }
+
   // ── Render ───────────────────────────────────────────────────
+  function getVisibleItems() {
+    return activeFilter === 'all'
+      ? allItems
+      : allItems.filter(i => i.type === activeFilter);
+  }
+
   function showLoading() {
-    const h = [280,240,320,200,300,260,220,290,250];
+    const heights = [280,240,320,200,300,260,220,290,250];
     galleryRoot.innerHTML = `<div class="gallery-status"><div class="loading-grid">
-      ${h.map(x => `<div class="skeleton" style="height:${x}px"></div>`).join('')}
+      ${heights.map(h => `<div class="skeleton" style="height:${h}px"></div>`).join('')}
     </div></div>`;
   }
 
-  function getVisible() {
-    return activeFilter === 'all' ? allItems : allItems.filter(i => i.type === activeFilter);
-  }
-
   function renderGallery() {
-    if (!allItems.length) {
+    if (allItems.length === 0) {
       galleryRoot.innerHTML = `<div class="gallery-status"><div class="empty-state">
-        No images found yet.<br>
-        Upload photos to <strong>skyatx/photos/</strong>, <strong>skyatx/drone/</strong>, or <strong>skyatx/video/</strong>
-        in your Cloudinary Media Library and refresh.
+        No images found. Add photos to your
+        <a href="https://drive.google.com/drive/folders/${ROOT_ID}" target="_blank">Google Drive folder</a>
+        and refresh the page.
       </div></div>`;
       return;
     }
@@ -374,29 +373,43 @@
       byType[item.type].push(item);
     });
 
-    const types = TYPE_ORDER.filter(t => byType[t] && byType[t].length);
+    const types = TYPE_ORDER.filter(t => byType[t] && byType[t].length > 0);
     let html = '';
 
     types.forEach(type => {
-      const items  = byType[type];
-      const label  = TYPE_LABELS[type] || type;
+      const items = byType[type];
+      const label = TYPE_LABELS[type] || type;
       const hidden = activeFilter !== 'all' && activeFilter !== type;
 
       html += `<div class="folder-section" data-type="${type}" ${hidden ? 'style="display:none"' : ''}>`;
       html += `<div class="folder-heading"><span>${label}</span></div>`;
       html += `<div class="gallery-grid">`;
 
-      items.forEach(item => {
-        const globalIdx = allItems.indexOf(item);
-        html += `
-          <div class="gallery-item" data-index="${globalIdx}" tabindex="0"
-               role="button" aria-label="View ${item.property}">
-            <img src="${thumbUrl(item.publicId)}"
-                 alt="${item.property}" loading="lazy">
-            <div class="gallery-item-overlay">
-              <span class="gallery-item-label">${item.property}</span>
-            </div>
-          </div>`;
+      items.forEach((item, i) => {
+        const globalIndex = allItems.indexOf(item);
+        if (item.mimeType && item.mimeType.startsWith('video/')) {
+          html += `
+            <div class="gallery-item" data-index="${globalIndex}" tabindex="0" role="button" aria-label="View ${item.property}">
+              <div style="background:var(--black);display:flex;align-items:center;justify-content:center;height:220px;">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(248,247,244,0.5)" stroke-width="1.2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polygon points="10,8 16,12 10,16" fill="rgba(248,247,244,0.5)" stroke="none"/>
+                </svg>
+              </div>
+              <div class="gallery-item-overlay">
+                <span class="gallery-item-label">${item.property}</span>
+              </div>
+            </div>`;
+        } else {
+          html += `
+            <div class="gallery-item" data-index="${globalIndex}" tabindex="0" role="button" aria-label="View ${item.property}">
+              <img src="https://drive.google.com/thumbnail?id=${item.fileId}&sz=w800"
+                   alt="${item.property}" loading="lazy">
+              <div class="gallery-item-overlay">
+                <span class="gallery-item-label">${item.property}</span>
+              </div>
+            </div>`;
+        }
       });
 
       html += `</div></div>`;
@@ -404,23 +417,23 @@
 
     galleryRoot.innerHTML = html;
 
-    // Click handlers
+    // Attach lightbox click handlers
     galleryRoot.querySelectorAll('.gallery-item').forEach(el => {
-      const open = () => {
-        const idx = parseInt(el.dataset.index);
-        const visible = getVisible();
-        const visIdx  = visible.indexOf(allItems[idx]);
-        openLightbox(visible, visIdx >= 0 ? visIdx : 0);
+      const handler = () => {
+        const index = parseInt(el.dataset.index);
+        const visible = getVisibleItems();
+        const visIndex = visible.indexOf(allItems[index]);
+        openLightbox(visible, visIndex >= 0 ? visIndex : 0);
       };
-      el.addEventListener('click', open);
-      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+      el.addEventListener('click', handler);
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') handler(); });
     });
 
     // Staggered fade in
     galleryRoot.querySelectorAll('.gallery-item').forEach((el, i) => {
       el.style.opacity = '0';
-      el.style.transition = `opacity 0.4s ease ${Math.min(i * 0.04, 0.8)}s`;
-      requestAnimationFrame(() => { el.style.opacity = '1'; });
+      el.style.transition = `opacity 0.4s ease ${Math.min(i * 0.04, 0.6)}s`;
+      setTimeout(() => { el.style.opacity = '1'; }, 50);
     });
   }
 
@@ -430,8 +443,8 @@
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       activeFilter = btn.dataset.filter;
-      document.querySelectorAll('.folder-section').forEach(s => {
-        s.style.display = (activeFilter === 'all' || s.dataset.type === activeFilter) ? '' : 'none';
+      document.querySelectorAll('.folder-section').forEach(section => {
+        section.style.display = (activeFilter === 'all' || section.dataset.type === activeFilter) ? '' : 'none';
       });
     });
   });
@@ -439,15 +452,37 @@
   // ── Load ─────────────────────────────────────────────────────
   async function loadGallery() {
     showLoading();
+    const imageTypes = ['image/jpeg','image/png','image/webp','image/gif'];
     try {
-      const resources = await fetchResources();
-      allItems = resources.map(parseItem).filter(Boolean);
+      const typeFolders = await listChildren(ROOT_ID);
+      for (const typeFolder of typeFolders) {
+        if (typeFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
+        const propFolders = await listChildren(typeFolder.id);
+        for (const propFolder of propFolders) {
+          if (propFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
+          const files = await listChildren(propFolder.id);
+          files.forEach(file => {
+            const isImage = imageTypes.includes(file.mimeType);
+            const isVideo = file.mimeType && file.mimeType.startsWith('video/');
+            if (isImage || isVideo) {
+              allItems.push({
+                fileId:   file.id,
+                name:     file.name,
+                mimeType: file.mimeType,
+                type:     typeFolder.name,
+                property: propFolder.name
+              });
+            }
+          });
+        }
+      }
       renderGallery();
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       galleryRoot.innerHTML = `<div class="gallery-status"><div class="empty-state">
-        ${err.message}<br><br>
-        <small>Go to Cloudinary → Settings → Security → uncheck "Restrict resource list"</small>
+        Couldn't load images. Make sure your Drive folder is set to
+        <strong>Anyone with the link can view</strong> and refresh.
+        <br><br><small style="color:#bbb">${err.message}</small>
       </div></div>`;
     }
   }
