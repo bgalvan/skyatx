@@ -299,7 +299,7 @@
         <div class="field-row">
           <div class="field">
             <label for="shootdate">Preferred date</label>
-            <input type="date" id="shootdate">
+            <input type="date" id="shootdate" onchange="checkAvailability(this.value)">
           </div>
           <div class="field">
             <label for="shoottime">Preferred time</label>
@@ -310,6 +310,7 @@
               <option>Afternoon (2pm – 5pm)</option>
               <option>Twilight / sunset</option>
             </select>
+            <div id="availStatus" style="font-size:12px;margin-top:5px;min-height:16px;"></div>
           </div>
         </div>
       </div>
@@ -408,7 +409,82 @@
 
 <script src="js/main.js"></script>
 <script>
-  var runningTotal = 0;
+  // ─────────────────────────────────────────────────────────────
+  // SETUP: Replace with your Google Apps Script Web App URL
+  // Deploy from script.google.com → Deploy → New Deployment → Web App
+  // ─────────────────────────────────────────────────────────────
+  var CALENDAR_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgQJDH9aHQdcJCb_MNBK-i8HfNKjJ-MCuaPE4BjsekTifMwC2mPN4IhG1DygK8nkFm/exec';
+
+  var ALL_SLOTS = [
+    'Morning (8am – 11am)',
+    'Midday (11am – 2pm)',
+    'Afternoon (2pm – 5pm)',
+    'Twilight / sunset'
+  ];
+
+  function checkAvailability(date) {
+    if (!date) return;
+
+    // Block past dates
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var selected = new Date(date + 'T00:00:00');
+    if (selected < today) {
+      setStatus('Past dates are not available.', 'error');
+      resetSlots([]);
+      return;
+    }
+
+    var sel = document.getElementById('shoottime');
+    sel.disabled = true;
+    setStatus('Checking availability…', 'loading');
+
+    fetch(CALENDAR_SCRIPT_URL + '?date=' + date)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.error) throw new Error(data.error);
+        var taken = data.takenSlots || [];
+        resetSlots(taken);
+        if (taken.length === 0) {
+          setStatus('All time slots available.', 'success');
+        } else if (taken.length === ALL_SLOTS.length) {
+          setStatus('No availability on this date.', 'error');
+        } else {
+          setStatus(taken.length + ' slot' + (taken.length > 1 ? 's' : '') + ' unavailable — others open.', 'warn');
+        }
+      })
+      .catch(function() {
+        // If script unreachable, allow booking but warn
+        resetSlots([]);
+        setStatus('Could not check availability — please confirm via email.', 'warn');
+      });
+  }
+
+  function resetSlots(takenSlots) {
+    var sel = document.getElementById('shoottime');
+    sel.innerHTML = '<option value="">Select time</option>';
+    sel.disabled = false;
+    ALL_SLOTS.forEach(function(slot) {
+      var opt = document.createElement('option');
+      opt.value = slot;
+      opt.textContent = slot;
+      if (takenSlots.indexOf(slot) !== -1) {
+        opt.disabled = true;
+        opt.textContent = slot + ' — unavailable';
+        opt.style.color = '#bbb';
+      }
+      sel.appendChild(opt);
+    });
+  }
+
+  function setStatus(msg, type) {
+    var el = document.getElementById('availStatus');
+    var colors = { success: '#5a8a5a', error: '#c0392b', warn: '#b07d2a', loading: '#999' };
+    el.style.color = colors[type] || '#999';
+    el.textContent = msg;
+  }
+
+
   var sqftSurcharge = 0;
 
   function updateTotal(cb, cardId) {
@@ -432,6 +508,19 @@
       if (!el.value.trim()) { el.classList.add('error'); valid = false; }
       else el.classList.remove('error');
     });
+
+    // Check selected time slot isn't disabled
+    var timeEl = document.getElementById('shoottime');
+    var selectedOpt = timeEl.options[timeEl.selectedIndex];
+    if (!timeEl.value) {
+      timeEl.classList.add('error'); valid = false;
+    } else if (selectedOpt && selectedOpt.disabled) {
+      timeEl.classList.add('error');
+      alert('That time slot is unavailable. Please select another.');
+      valid = false;
+    } else {
+      timeEl.classList.remove('error');
+    }
 
     var boxes = document.querySelectorAll('.services-grid input[type="checkbox"]');
     var anyChecked = Array.prototype.some.call(boxes, function(b) { return b.checked; });
