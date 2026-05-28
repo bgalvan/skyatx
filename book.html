@@ -288,12 +288,11 @@
           </div>
           <div class="field">
             <label for="sqft">Square footage</label>
-            <select id="sqft">
-              <option value="">Select range</option>
-              <option>Under 1,500 sqft</option>
-              <option>1,500 – 2,500 sqft</option>
-              <option>2,500 – 4,000 sqft</option>
-              <option>4,000+ sqft</option>
+            <select id="sqft" onchange="updateSqft(this)">
+              <option value="0">Select range</option>
+              <option value="0">Under 2,500 sqft</option>
+              <option value="50">2,500 – 3,500 sqft (+$50)</option>
+              <option value="100">4,000+ sqft (+$100)</option>
             </select>
           </div>
         </div>
@@ -328,27 +327,27 @@
             </div>
           </label>
           <label class="service-card" id="sc-drone">
-            <input type="checkbox" data-price="75" onchange="updateTotal(this,'sc-drone')">
+            <input type="checkbox" data-price="100" onchange="updateTotal(this,'sc-drone')">
             <div class="service-info">
               <div class="service-name">Drone photo add-on</div>
               <div class="service-desc">15–20 aerial images</div>
-              <div class="service-price">+$75</div>
+              <div class="service-price">+$100</div>
             </div>
           </label>
           <label class="service-card" id="sc-matterport">
-            <input type="checkbox" data-price="75" onchange="updateTotal(this,'sc-matterport')">
+            <input type="checkbox" data-price="100" onchange="updateTotal(this,'sc-matterport')">
             <div class="service-info">
               <div class="service-name">Matterport 3D add-on</div>
               <div class="service-desc">Interactive 3D walkthrough</div>
-              <div class="service-price">+$75</div>
+              <div class="service-price">+$100</div>
             </div>
           </label>
           <label class="service-card" id="sc-twilight">
-            <input type="checkbox" data-price="75" onchange="updateTotal(this,'sc-twilight')">
+            <input type="checkbox" data-price="100" onchange="updateTotal(this,'sc-twilight')">
             <div class="service-info">
               <div class="service-name">Twilight add-on</div>
               <div class="service-desc">Shoot at sunset</div>
-              <div class="service-price">+$75</div>
+              <div class="service-price">+$100</div>
             </div>
           </label>
           <label class="service-card" id="sc-video" style="grid-column:1/-1">
@@ -402,13 +401,19 @@
 <script src="js/main.js"></script>
 <script>
   var runningTotal = 0;
+  var sqftSurcharge = 0;
 
   function updateTotal(cb, cardId) {
     var card = document.getElementById(cardId);
     var price = parseInt(cb.dataset.price);
     runningTotal += cb.checked ? price : -price;
-    document.getElementById('totalVal').textContent = '$' + runningTotal.toLocaleString();
+    document.getElementById('totalVal').textContent = '$' + (runningTotal + sqftSurcharge).toLocaleString();
     card.classList.toggle('selected', cb.checked);
+  }
+
+  function updateSqft(sel) {
+    sqftSurcharge = parseInt(sel.value) || 0;
+    document.getElementById('totalVal').textContent = '$' + (runningTotal + sqftSurcharge).toLocaleString();
   }
 
   function handleSubmit() {
@@ -451,7 +456,7 @@
         shoot_date: document.getElementById('shootdate').value,
         shoot_time: document.getElementById('shoottime').value,
         services: selected,
-        estimated_total: '$' + runningTotal.toLocaleString(),
+        estimated_total: '$' + (runningTotal + sqftSurcharge).toLocaleString(),
         notes: document.getElementById('notes').value
       })
     })
