@@ -270,8 +270,8 @@
         <div class="section-rule"><span>Property</span></div>
         <div class="field-row full">
           <div class="field">
-            <label for="property-location">Property address</label>
-            <input type="text" id="property-location" name="property-location" placeholder="123 Main St, Austin, TX" autocomplete="new-password">
+            <label>Property address</label>
+            <div id="property-location-wrap"></div>
           </div>
         </div>
         <div class="field-row">
@@ -419,7 +419,16 @@
     document.head.appendChild(script);
   })();
   function initMapsReady() {
-    var input = document.getElementById('property-location');
+    // Create input dynamically so Firefox doesn't autofill it
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'property-location';
+    input.placeholder = '123 Main St, Austin, TX';
+    input.autocomplete = 'off';
+    input.className = '';
+    // Match existing field styling
+    input.style.cssText = 'font-family:var(--sans);font-size:14px;font-weight:300;color:var(--black);background:var(--white);border:1px solid var(--light);border-radius:2px;padding:10px 12px;outline:none;width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none;';
+    document.getElementById('property-location-wrap').appendChild(input);
     var autocomplete = new google.maps.places.Autocomplete(input, {
       componentRestrictions: { country: 'us' },
       fields: ['formatted_address', 'geometry'],
@@ -587,7 +596,7 @@
   }
 
   function handleSubmit() {
-    var required = ['fname','lname','email','phone','address'];
+    var required = ['fname','lname','email','phone','property-location'];
     var valid = true;
     required.forEach(function(id) {
       var el = document.getElementById(id);
