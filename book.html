@@ -414,11 +414,29 @@
 <script>
   (function() {
     var script = document.createElement('script');
-    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw&libraries=geometry&loading=async&callback=initMapsReady';
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw&libraries=geometry,places&loading=async&callback=initMapsReady';
     script.async = true;
     document.head.appendChild(script);
   })();
-  function initMapsReady() { /* Maps API loaded */ }
+  function initMapsReady() {
+    var input = document.getElementById('address');
+    var autocomplete = new google.maps.places.Autocomplete(input, {
+      componentRestrictions: { country: 'us' },
+      fields: ['formatted_address', 'geometry'],
+      bounds: new google.maps.LatLngBounds(
+        new google.maps.LatLng(29.5, -98.5),  // SW corner of Austin metro
+        new google.maps.LatLng(31.0, -97.0)   // NE corner of Austin metro
+      ),
+      strictBounds: false
+    });
+
+    autocomplete.addListener('place_changed', function() {
+      var place = autocomplete.getPlace();
+      if (!place.formatted_address) return;
+      // Use the confirmed address for distance calc
+      checkMileageForAddress(place.formatted_address);
+    });
+  }
 </script>
 <script>
   // ─────────────────────────────────────────────────────────────
@@ -510,15 +528,9 @@
     document.getElementById('totalVal').textContent = '$' + (runningTotal + sqftSurcharge + mileageFee).toLocaleString();
   }
 
-  function checkMileage() {
-    var address = document.getElementById('address').value.trim();
-    if (!address || address.length < 8) return;
-
-    // Wait for Maps API to load
-    if (typeof google === 'undefined' || !google.maps) {
-      setTimeout(checkMileage, 500);
-      return;
-    }
+  function checkMileageForAddress(address) {
+    if (!address) return;
+    document.getElementById('mileageNote').textContent = 'Checking distance…';
 
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix({
@@ -560,12 +572,6 @@
     });
   }
 
-  // Attach address listener directly (DOM already ready at this point)
-  document.getElementById('address').addEventListener('input', function() {
-    clearTimeout(mileageTimer);
-    document.getElementById('mileageNote').textContent = 'Checking distance…';
-    mileageTimer = setTimeout(checkMileage, 800);
-  });
 
   function updateTotal(cb, cardId) {
     var card = document.getElementById(cardId);
