@@ -270,8 +270,8 @@
         <div class="section-rule"><span>Property</span></div>
         <div class="field-row full">
           <div class="field">
-            <label for="address">Property address</label>
-            <input type="text" id="address" placeholder="123 Main St, Austin, TX" autocomplete="new-password">
+            <label for="property-location">Property address</label>
+            <input type="text" id="property-location" name="property-location" placeholder="123 Main St, Austin, TX" autocomplete="new-password">
           </div>
         </div>
         <div class="field-row">
@@ -419,7 +419,7 @@
     document.head.appendChild(script);
   })();
   function initMapsReady() {
-    var input = document.getElementById('address');
+    var input = document.getElementById('property-location');
     var autocomplete = new google.maps.places.Autocomplete(input, {
       componentRestrictions: { country: 'us' },
       fields: ['formatted_address', 'geometry'],
@@ -633,7 +633,7 @@
         name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
-        address: document.getElementById('address').value,
+        address: document.getElementById('property-location').value,
         property_type: document.getElementById('proptype').value,
         sqft: document.getElementById('sqft').value,
         shoot_date: document.getElementById('shootdate').value,
