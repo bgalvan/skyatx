@@ -25,8 +25,8 @@
       max-width: 800px;
       margin: 0 auto;
       padding: 0 3rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 1rem;
     }
 
@@ -35,8 +35,8 @@
       border-radius: 2px;
       padding: 2.5rem;
       display: flex;
-      flex-direction: column;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 2rem;
     }
 
@@ -83,18 +83,11 @@
       color: var(--gray);
     }
 
-    .pkg-bottom {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-top: auto;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(0,0,0,0.08);
-    }
+    .pkg-left { flex: 1; }
 
-    .package-card.featured .pkg-bottom {
-      border-top-color: rgba(255,255,255,0.12);
+    .pkg-right {
+      text-align: right;
+      flex-shrink: 0;
     }
 
     .pkg-price {
@@ -106,9 +99,10 @@
 
     .pkg-price span { font-size: 1rem; vertical-align: super; font-family: var(--sans); font-weight: 300; }
 
-    @media (max-width: 640px) {
-      .services-grid { grid-template-columns: 1fr; padding-left: 1.5rem; padding-right: 1.5rem; }
-      .package-card { padding: 1.75rem; }
+    @media (max-width: 600px) {
+      .services-grid { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .package-card { flex-direction: column; padding: 1.75rem; }
+      .pkg-right { text-align: left; }
       .services-header, .addons-section, .mileage-note, .pricing-cta { padding-left: 1.5rem; padding-right: 1.5rem; }
     }
 
@@ -205,7 +199,7 @@
   <div class="services-grid">
 
     <div class="package-card featured fade-in">
-      <div>
+      <div class="pkg-left">
         <div class="pkg-name">Ground Photos</div>
         <div class="pkg-desc">Professionally edited stills to showcase every corner of your listing.</div>
         <ul class="pkg-includes">
@@ -215,14 +209,16 @@
           <li>MLS &amp; marketing licensed</li>
         </ul>
       </div>
-      <div class="pkg-bottom">
+      <div class="pkg-right">
         <div class="pkg-price"><span>$</span>225</div>
-        <a href="book.html" class="btn" style="background:var(--white);color:var(--black);">Book now</a>
+        <div class="pkg-cta">
+          <a href="book.html" class="btn" style="background:var(--white);color:var(--black);margin-top:1rem;display:inline-block">Book now</a>
+        </div>
       </div>
     </div>
 
     <div class="package-card fade-in">
-      <div>
+      <div class="pkg-left">
         <div class="pkg-name">Video Tour</div>
         <div class="pkg-desc">Cinematic walkthrough that brings your listing to life on any screen.</div>
         <ul class="pkg-includes">
@@ -232,14 +228,16 @@
           <li>Optimized for MLS &amp; social</li>
         </ul>
       </div>
-      <div class="pkg-bottom">
+      <div class="pkg-right">
         <div class="pkg-price"><span>$</span>300</div>
-        <a href="book.html" class="btn btn-outline">Book now</a>
+        <div class="pkg-cta">
+          <a href="book.html" class="btn btn-outline" style="margin-top:1rem;display:inline-block">Book now</a>
+        </div>
       </div>
     </div>
 
     <div class="package-card fade-in">
-      <div>
+      <div class="pkg-left">
         <div class="pkg-name">Drone Video</div>
         <div class="pkg-desc">Sweeping aerial footage that puts the property and its surroundings in full perspective.</div>
         <ul class="pkg-includes">
@@ -249,14 +247,16 @@
           <li>MLS &amp; marketing licensed</li>
         </ul>
       </div>
-      <div class="pkg-bottom">
+      <div class="pkg-right">
         <div class="pkg-price"><span>$</span>200</div>
-        <a href="book.html" class="btn btn-outline">Book now</a>
+        <div class="pkg-cta">
+          <a href="book.html" class="btn btn-outline" style="margin-top:1rem;display:inline-block">Book now</a>
+        </div>
       </div>
     </div>
 
     <div class="package-card fade-in">
-      <div>
+      <div class="pkg-left">
         <div class="pkg-name">Matterport 3D</div>
         <div class="pkg-desc">Interactive 3D virtual tour — let buyers walk through the home from anywhere.</div>
         <ul class="pkg-includes">
@@ -266,9 +266,11 @@
           <li>Hosted for 12 months</li>
         </ul>
       </div>
-      <div class="pkg-bottom">
+      <div class="pkg-right">
         <div class="pkg-price"><span>$</span>200</div>
-        <a href="book.html" class="btn btn-outline">Book now</a>
+        <div class="pkg-cta">
+          <a href="book.html" class="btn btn-outline" style="margin-top:1rem;display:inline-block">Book now</a>
+        </div>
       </div>
     </div>
 
