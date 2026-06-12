@@ -368,11 +368,15 @@
           </label>
         </div>
 
+        <div class="estimate-row" id="mileageRow" style="display:none; border-top:none; padding-top:0.5rem; padding-bottom:0.5rem; margin-top:0;">
+          <span class="estimate-label" style="font-size:12px;">Mileage fee <span id="mileageDetail" style="font-weight:300;"></span></span>
+          <span style="font-family:var(--serif); font-size:1rem;" id="mileageVal">$0</span>
+        </div>
         <div class="estimate-row">
           <span class="estimate-label">Estimated total</span>
           <span class="estimate-val" id="totalVal">$0</span>
         </div>
-        <p class="estimate-note">Final price may vary by location. A mileage fee may apply outside the Austin metro area — we'll confirm before your shoot.</p>
+        <p class="estimate-note" id="mileageNote">Enter a property address above to see if a mileage fee applies.</p>
       </div>
 
       <!-- NOTES -->
@@ -407,6 +411,7 @@
 </footer>
 
 <script src="js/main.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw&libraries=geometry" async defer></script>
 <script>
   // ─────────────────────────────────────────────────────────────
   // SETUP: Replace with your Google Apps Script Web App URL
@@ -485,18 +490,79 @@
 
   var sqftSurcharge = 0;
   var runningTotal = 0;
+  var mileageFee = 0;
+
+  var ORIGIN = '908 E 37th St, Austin, TX 78705';
+  var FREE_MILES = 6;
+  var RATE_PER_MILE = 1.50;
+
+  var mileageTimer = null;
+
+  function updateDisplayTotal() {
+    document.getElementById('totalVal').textContent = '$' + (runningTotal + sqftSurcharge + mileageFee).toLocaleString();
+  }
+
+  function checkMileage() {
+    var address = document.getElementById('address').value.trim();
+    if (!address || address.length < 8) return;
+
+    // Wait for Maps API to load
+    if (typeof google === 'undefined' || !google.maps) {
+      setTimeout(checkMileage, 500);
+      return;
+    }
+
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix({
+      origins: [ORIGIN],
+      destinations: [address],
+      travelMode: google.maps.TravelMode.DRIVING,
+      unitSystem: google.maps.UnitSystem.IMPERIAL
+    }, function(response, status) {
+      if (status !== 'OK') return;
+      var element = response.rows[0].elements[0];
+      if (element.status !== 'OK') return;
+
+      // Distance in meters → miles
+      var miles = element.distance.value / 1609.344;
+      var note = document.getElementById('mileageNote');
+      var row = document.getElementById('mileageRow');
+
+      if (miles <= FREE_MILES) {
+        mileageFee = 0;
+        row.style.display = 'none';
+        note.textContent = 'No mileage fee — property is within ' + FREE_MILES + ' miles.';
+      } else {
+        var extraMiles = Math.ceil(miles - FREE_MILES);
+        mileageFee = extraMiles * RATE_PER_MILE;
+        document.getElementById('mileageVal').textContent = '$' + mileageFee.toFixed(2);
+        document.getElementById('mileageDetail').textContent = '(' + miles.toFixed(1) + ' mi, ' + extraMiles + ' over free radius)';
+        row.style.display = 'flex';
+        note.textContent = 'Mileage fee applies — ' + miles.toFixed(1) + ' miles from our base.';
+      }
+      updateDisplayTotal();
+    });
+  }
+
+  // Debounce address input
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('address').addEventListener('input', function() {
+      clearTimeout(mileageTimer);
+      mileageTimer = setTimeout(checkMileage, 800);
+    });
+  });
 
   function updateTotal(cb, cardId) {
     var card = document.getElementById(cardId);
     var price = parseInt(cb.dataset.price);
     runningTotal += cb.checked ? price : -price;
-    document.getElementById('totalVal').textContent = '$' + (runningTotal + sqftSurcharge).toLocaleString();
+    updateDisplayTotal();
     card.classList.toggle('selected', cb.checked);
   }
 
   function updateSqft(sel) {
     sqftSurcharge = parseInt(sel.value) || 0;
-    document.getElementById('totalVal').textContent = '$' + (runningTotal + sqftSurcharge).toLocaleString();
+    updateDisplayTotal();
   }
 
   function handleSubmit() {
@@ -552,7 +618,7 @@
         shoot_date: document.getElementById('shootdate').value,
         shoot_time: document.getElementById('shoottime').value,
         services: selected,
-        estimated_total: '$' + (runningTotal + sqftSurcharge).toLocaleString(),
+        estimated_total: '$' + (runningTotal + sqftSurcharge + mileageFee).toLocaleString(),
         notes: document.getElementById('notes').value
       })
     })
