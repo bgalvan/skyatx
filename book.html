@@ -411,7 +411,15 @@
 </footer>
 
 <script src="js/main.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw&libraries=geometry" async defer></script>
+<script>
+  (function() {
+    var script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw&libraries=geometry&loading=async&callback=initMapsReady';
+    script.async = true;
+    document.head.appendChild(script);
+  })();
+  function initMapsReady() { /* Maps API loaded */ }
+</script>
 <script>
   // ─────────────────────────────────────────────────────────────
   // SETUP: Replace with your Google Apps Script Web App URL
