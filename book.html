@@ -519,9 +519,17 @@
       travelMode: google.maps.TravelMode.DRIVING,
       unitSystem: google.maps.UnitSystem.IMPERIAL
     }, function(response, status) {
-      if (status !== 'OK') return;
+      if (status !== 'OK') {
+        console.error('Distance Matrix error:', status);
+        document.getElementById('mileageNote').textContent = 'Could not calculate distance — confirm mileage via email.';
+        return;
+      }
       var element = response.rows[0].elements[0];
-      if (element.status !== 'OK') return;
+      if (element.status !== 'OK') {
+        console.error('Element status:', element.status);
+        document.getElementById('mileageNote').textContent = 'Address not found — please double-check it.';
+        return;
+      }
 
       // Distance in meters → miles
       var miles = element.distance.value / 1609.344;
@@ -544,12 +552,11 @@
     });
   }
 
-  // Debounce address input
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('address').addEventListener('input', function() {
-      clearTimeout(mileageTimer);
-      mileageTimer = setTimeout(checkMileage, 800);
-    });
+  // Attach address listener directly (DOM already ready at this point)
+  document.getElementById('address').addEventListener('input', function() {
+    clearTimeout(mileageTimer);
+    document.getElementById('mileageNote').textContent = 'Checking distance…';
+    mileageTimer = setTimeout(checkMileage, 800);
   });
 
   function updateTotal(cb, cardId) {
