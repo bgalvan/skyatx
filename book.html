@@ -797,37 +797,48 @@
     var deposit = Math.round(total * 0.5);
 
     // ─────────────────────────────────────────────────────────────
-    // SETUP: Replace YOUR_FORM_ID with your Formspree form ID.
+    // SETUP: Replace YOUR_APPS_SCRIPT_URL with your deployed
+    // Apps Script web app URL (same project as the calendar script).
     // ─────────────────────────────────────────────────────────────
-    fetch('https://formspree.io/f/xredkpjq', {
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgQJDH9aHQdcJCb_MNBK-i8HfNKjJ-MCuaPE4BjsekTifMwC2mPN4IhG1DygK8nkFm/exec';
+
+    // Step 1: create a Square payment link for the exact deposit amount
+    fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        address: document.getElementById('property-location').value,
-        property_type: document.getElementById('proptype').value,
-        sqft: document.getElementById('sqft').value,
-        shoot_date: document.getElementById('shootdate').value,
-        shoot_time: document.getElementById('shoottime').value,
-        services: selected,
-        estimated_total: '$' + total.toLocaleString(),
-        deposit_due: '$' + deposit.toLocaleString(),
-        notes: document.getElementById('notes').value
-      })
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ amount: deposit })
     })
-    .then(function(r) {
-      if (!r.ok) throw new Error();
-      closeModal();
-      document.getElementById('bookForm').style.display = 'none';
-      document.getElementById('successState').style.display = 'block';
-      // ─────────────────────────────────────────────────────────────
-      // SETUP: Replace YOUR_SQUARE_PAYMENT_LINK with your Square
-      // payment link URL. Create one at squareup.com/dashboard →
-      // Online → Payment Links. Set the amount to match your deposit.
-      // ─────────────────────────────────────────────────────────────
-      window.open('https://square.link/u/zIyx13ZE', '_blank');
+    .then(function(r) { return r.json(); })
+    .then(function(squareData) {
+      if (squareData.error) throw new Error('Square: ' + squareData.error);
+
+      // Step 2: submit booking details to Formspree
+      return fetch('https://formspree.io/f/xredkpjq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('fname').value + ' ' + document.getElementById('lname').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value,
+          address: document.getElementById('property-location').value,
+          property_type: document.getElementById('proptype').value,
+          sqft: document.getElementById('sqft').value,
+          shoot_date: document.getElementById('shootdate').value,
+          shoot_time: document.getElementById('shoottime').value,
+          services: selected,
+          estimated_total: '$' + total.toLocaleString(),
+          deposit_due: '$' + deposit.toLocaleString(),
+          square_payment_link: squareData.url,
+          notes: document.getElementById('notes').value
+        })
+      }).then(function(r) {
+        if (!r.ok) throw new Error('Formspree error');
+        // Step 3: show success and redirect to Square
+        closeModal();
+        document.getElementById('bookForm').style.display = 'none';
+        document.getElementById('successState').style.display = 'block';
+        window.open(squareData.url, '_blank');
+      });
     })
     .catch(function() {
       payBtn.disabled = false;
