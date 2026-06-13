@@ -730,9 +730,12 @@
     var timeEl = document.getElementById('shoottime');
     var selectedOpt = timeEl.options[timeEl.selectedIndex];
     if (!timeEl.value) {
-      timeEl.classList.add('error'); valid = false;
+      timeEl.classList.add('error');
+      if (!firstError) firstError = timeEl;
+      valid = false;
     } else if (selectedOpt && selectedOpt.disabled) {
       timeEl.classList.add('error');
+      if (!firstError) firstError = timeEl;
       alert('That time slot is unavailable. Please select another.');
       valid = false;
     } else {
@@ -741,11 +744,15 @@
 
     var boxes = document.querySelectorAll('.services-grid input[type="checkbox"]');
     var anyChecked = Array.prototype.some.call(boxes, function(b) { return b.checked; });
-    if (!anyChecked) { alert('Please select at least one service.'); valid = false; }
+    if (!anyChecked) {
+      valid = false;
+      if (!firstError) firstError = boxes[0] ? boxes[0].closest('.service-card') : null;
+      alert('Please select at least one service.');
+    }
     if (!valid) {
       if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstError.focus();
+        if (firstError.focus) firstError.focus();
       }
       return;
     }
