@@ -279,12 +279,12 @@
     </div>
     <a href="gallery.html" class="btn btn-outline fade-in" style="margin-bottom:4px">View all</a>
   </div>
-  <div class="work-grid fade-in">
-    <div class="work-item"><div class="work-placeholder">Add image</div></div>
-    <div class="work-item"><div class="work-placeholder">Add image</div></div>
-    <div class="work-item"><div class="work-placeholder">Add image</div></div>
-    <div class="work-item"><div class="work-placeholder">Add image</div></div>
-    <div class="work-item"><div class="work-placeholder">Add image</div></div>
+  <div class="work-grid fade-in" id="recentWorkGrid">
+    <div class="work-item"><div class="work-placeholder">Loading…</div></div>
+    <div class="work-item"><div class="work-placeholder">Loading…</div></div>
+    <div class="work-item"><div class="work-placeholder">Loading…</div></div>
+    <div class="work-item"><div class="work-placeholder">Loading…</div></div>
+    <div class="work-item"><div class="work-placeholder">Loading…</div></div>
   </div>
 </div>
 
@@ -301,5 +301,57 @@
 </footer>
 
 <script src="js/main.js"></script>
+<script>
+  (async function loadRecentWork() {
+    const API_KEY = 'AIzaSyBY1QA-5RK6E6mgR-tTQixLWn8ekb_v7sw';
+    const ROOT_ID = '1eSAKXzuxbWW01ASWjgqIRg2MnYcwNiQF';
+    const grid = document.getElementById('recentWorkGrid');
+
+    async function listChildren(folderId) {
+      const url = `https://www.googleapis.com/drive/v3/files`
+        + `?q='${folderId}'+in+parents+and+trashed=false`
+        + `&fields=files(id,name,mimeType)`
+        + `&orderBy=name`
+        + `&key=${API_KEY}`;
+      const r = await fetch(url);
+      return (await r.json()).files || [];
+    }
+
+    function thumbUrl(id) { return `https://drive.google.com/thumbnail?id=${id}&sz=w800`; }
+
+    try {
+      const covers = [];
+      const typeFolders = await listChildren(ROOT_ID);
+
+      for (const typeFolder of typeFolders) {
+        if (typeFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
+        const propFolders = await listChildren(typeFolder.id);
+        for (const propFolder of propFolders) {
+          if (propFolder.mimeType !== 'application/vnd.google-apps.folder') continue;
+          const files = await listChildren(propFolder.id);
+          const images = files.filter(f => f.mimeType && f.mimeType.startsWith('image/'));
+          if (images.length === 0) continue;
+          covers.push({ name: propFolder.name, file: images[0] });
+          if (covers.length >= 5) break;
+        }
+        if (covers.length >= 5) break;
+      }
+
+      if (covers.length === 0) {
+        grid.innerHTML = '<div class="work-item"><div class="work-placeholder">No images yet</div></div>';
+        return;
+      }
+
+      grid.innerHTML = covers.map((c, i) => `
+        <a href="gallery.html" class="work-item" style="${i === 0 ? 'grid-column:span 2;aspect-ratio:2/1;' : ''}">
+          <img src="${thumbUrl(c.file.id)}" alt="${c.name}" loading="lazy">
+        </a>`).join('');
+
+    } catch(e) {
+      console.error('Recent work failed:', e);
+      grid.innerHTML = '';
+    }
+  })();
+</script>
 </body>
 </html>
