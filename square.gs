@@ -2,9 +2,9 @@
 // Called from doGet() in the calendar script when action=squareLink.
 // ─────────────────────────────────────────────────────────────────────────
 
-var SQUARE_ACCESS_TOKEN = 'EAAAl17INPumFMysBwIWwwKlFp8PGkMdVumzWkGRZvyl110_3lQbejPdUDBqCULd';
-var SQUARE_LOCATION_ID  = 'LTBG1Q0FW27C6';
-var SQUARE_BASE_URL     = 'https://connect.squareupsandbox.com'; // swap to https://connect.squareup.com for production
+var SQUARE_ACCESS_TOKEN = 'EAAAl7wwO8TuHZh3zzQLGhcrxrFGkW-iVAHbW_-NSFPakDCgwzEBMEPYhkFDZgtu';
+var SQUARE_LOCATION_ID  = 'SPBRH4D7YS05X';
+var SQUARE_BASE_URL     = 'https://connect.squareup.com';
 
 function createSquarePaymentLink(amountDollars) {
   var amountCents = Math.round(parseFloat(amountDollars) * 100);

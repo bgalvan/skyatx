@@ -9,7 +9,6 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 var SLOTS = {
-  "Morning (8am – 11am)":  { start: 8,  end: 11 },
   "Midday (11am – 2pm)":   { start: 11, end: 14 },
   "Afternoon (2pm – 5pm)": { start: 14, end: 17 },
   "Twilight / sunset":     { start: 17, end: 21 }
@@ -52,6 +51,7 @@ function doGet(e) {
     var takenSlots = [];
 
     events.forEach(function(event) {
+      if (event.isAllDayEvent()) return; // ignore holidays, birthdays, etc.
       var evStart = event.getStartTime().getHours();
       var evEnd   = event.getEndTime().getHours();
       for (var slotName in SLOTS) {
