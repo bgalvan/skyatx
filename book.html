@@ -803,11 +803,7 @@
     var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgQJDH9aHQdcJCb_MNBK-i8HfNKjJ-MCuaPE4BjsekTifMwC2mPN4IhG1DygK8nkFm/exec';
 
     // Step 1: create a Square payment link for the exact deposit amount
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ amount: deposit })
-    })
+    fetch(APPS_SCRIPT_URL + '?action=squareLink&amount=' + deposit)
     .then(function(r) { return r.json(); })
     .then(function(squareData) {
       if (squareData.error) throw new Error('Square: ' + squareData.error);
