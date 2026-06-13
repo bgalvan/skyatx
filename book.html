@@ -93,6 +93,8 @@
     .field textarea:focus { border-color: var(--black); }
 
     .field input.error { border-color: #c0392b; }
+    .field-error-msg { font-size: 11px; color: #c0392b; margin-top: 3px; display: none; }
+    .field-error-msg.visible { display: block; }
 
     .field textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
     input[type="search"]::-webkit-search-cancel-button { display: none; }
@@ -248,21 +250,25 @@
         <div class="field-row">
           <div class="field">
             <label for="fname">First name</label>
-            <input type="text" id="fname" placeholder="Jane">
+            <input type="text" id="fname" placeholder="Jane" oninput="clearFieldError(this)">
+            <span class="field-error-msg" id="err-fname">Please enter your first name.</span>
           </div>
           <div class="field">
             <label for="lname">Last name</label>
-            <input type="text" id="lname" placeholder="Smith">
+            <input type="text" id="lname" placeholder="Smith" oninput="clearFieldError(this)">
+            <span class="field-error-msg" id="err-lname">Please enter your last name.</span>
           </div>
         </div>
         <div class="field-row">
           <div class="field">
             <label for="email">Email</label>
-            <input type="email" id="email" placeholder="jane@realty.com">
+            <input type="email" id="email" placeholder="jane@realty.com" oninput="clearFieldError(this)">
+            <span class="field-error-msg" id="err-email">Please enter your email address.</span>
           </div>
           <div class="field">
             <label for="phone">Phone</label>
-            <input type="tel" id="phone" placeholder="(512) 000-0000">
+            <input type="tel" id="phone" placeholder="(512) 000-0000" oninput="clearFieldError(this)">
+            <span class="field-error-msg" id="err-phone">Please enter your phone number.</span>
           </div>
         </div>
       </div>
@@ -274,6 +280,7 @@
           <div class="field">
             <label>Shoot location</label>
             <div id="property-location-wrap"></div>
+            <span class="field-error-msg" id="err-property-location">Please enter the property address.</span>
           </div>
         </div>
         <div class="field-row">
@@ -430,6 +437,7 @@
     input.className = '';
     // Match existing field styling
     input.style.cssText = 'font-family:var(--sans);font-size:14px;font-weight:300;color:var(--black);background:var(--white);border:1px solid var(--light);border-radius:2px;padding:10px 12px;outline:none;width:100%;box-sizing:border-box;-webkit-appearance:none;appearance:none;';
+    input.addEventListener('input', function() { clearFieldError(input); });
     document.getElementById('property-location-wrap').appendChild(input);
     var autocomplete = new google.maps.places.Autocomplete(input, {
       componentRestrictions: { country: 'us' },
@@ -597,13 +605,28 @@
     updateDisplayTotal();
   }
 
+  function clearFieldError(input) {
+    input.classList.remove('error');
+    var msg = document.getElementById('err-' + input.id);
+    if (msg) msg.classList.remove('visible');
+  }
+
   function handleSubmit() {
     var required = ['fname','lname','email','phone','property-location'];
     var valid = true;
+    var firstError = null;
     required.forEach(function(id) {
       var el = document.getElementById(id);
-      if (!el.value.trim()) { el.classList.add('error'); valid = false; }
-      else el.classList.remove('error');
+      var msg = document.getElementById('err-' + id);
+      if (!el.value.trim()) {
+        el.classList.add('error');
+        if (msg) msg.classList.add('visible');
+        if (!firstError) firstError = el;
+        valid = false;
+      } else {
+        el.classList.remove('error');
+        if (msg) msg.classList.remove('visible');
+      }
     });
 
     // Check selected time slot isn't disabled
@@ -622,7 +645,13 @@
     var boxes = document.querySelectorAll('.services-grid input[type="checkbox"]');
     var anyChecked = Array.prototype.some.call(boxes, function(b) { return b.checked; });
     if (!anyChecked) { alert('Please select at least one service.'); valid = false; }
-    if (!valid) return;
+    if (!valid) {
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+      return;
+    }
 
     var btn = document.getElementById('submitBtn');
     btn.disabled = true;
