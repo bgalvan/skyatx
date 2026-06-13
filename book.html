@@ -743,18 +743,47 @@
       return;
     }
 
-    var btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
+    // All valid — populate and open review modal
+    var selected = Array.prototype.filter.call(boxes, function(b) { return b.checked; })
+      .map(function(b) { return b.closest('.service-card').querySelector('.service-name').textContent; });
 
+    var total = runningTotal + sqftSurcharge + mileageFee;
+    var deposit = Math.round(total * 0.5);
+
+    var date = document.getElementById('shootdate').value;
+    var dateStr = date ? new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+
+    document.getElementById('rev-name').textContent = document.getElementById('fname').value + ' ' + document.getElementById('lname').value;
+    document.getElementById('rev-email').textContent = document.getElementById('email').value;
+    document.getElementById('rev-phone').textContent = document.getElementById('phone').value;
+    document.getElementById('rev-address').textContent = document.getElementById('property-location').value;
+    document.getElementById('rev-datetime').textContent = dateStr + (document.getElementById('shoottime').value ? ' · ' + document.getElementById('shoottime').value : '');
+    document.getElementById('rev-services').textContent = selected.join(', ');
+    document.getElementById('rev-total').textContent = '$' + total.toLocaleString();
+    document.getElementById('rev-deposit').textContent = '$' + deposit.toLocaleString();
+
+    document.getElementById('reviewModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('reviewModal').classList.remove('open');
+  }
+
+  function confirmAndPay() {
+    var payBtn = document.getElementById('payBtn');
+    payBtn.disabled = true;
+    payBtn.textContent = 'Submitting…';
+
+    var boxes = document.querySelectorAll('.services-grid input[type="checkbox"]');
     var selected = Array.prototype.filter.call(boxes, function(b) { return b.checked; })
       .map(function(b) { return b.closest('.service-card').querySelector('.service-name').textContent; })
       .join(', ');
 
+    var total = runningTotal + sqftSurcharge + mileageFee;
+    var deposit = Math.round(total * 0.5);
+
     // ─────────────────────────────────────────────────────────────
     // SETUP: Replace YOUR_FORM_ID with your Formspree form ID.
-    // Go to formspree.io → New Form → connect to info@skyatx.com
-    // Your ID looks like: xpwzabcd
     // ─────────────────────────────────────────────────────────────
     fetch('https://formspree.io/f/YOUR_FORM_ID', {
       method: 'POST',
@@ -769,19 +798,26 @@
         shoot_date: document.getElementById('shootdate').value,
         shoot_time: document.getElementById('shoottime').value,
         services: selected,
-        estimated_total: '$' + (runningTotal + sqftSurcharge + mileageFee).toLocaleString(),
+        estimated_total: '$' + total.toLocaleString(),
+        deposit_due: '$' + deposit.toLocaleString(),
         notes: document.getElementById('notes').value
       })
     })
     .then(function(r) {
-      if (r.ok) {
-        document.getElementById('bookForm').style.display = 'none';
-        document.getElementById('successState').style.display = 'block';
-      } else { throw new Error(); }
+      if (!r.ok) throw new Error();
+      closeModal();
+      document.getElementById('bookForm').style.display = 'none';
+      document.getElementById('successState').style.display = 'block';
+      // ─────────────────────────────────────────────────────────────
+      // SETUP: Replace YOUR_SQUARE_PAYMENT_LINK with your Square
+      // payment link URL. Create one at squareup.com/dashboard →
+      // Online → Payment Links. Set the amount to match your deposit.
+      // ─────────────────────────────────────────────────────────────
+      window.open('https://square.link/YOUR_SQUARE_PAYMENT_LINK', '_blank');
     })
     .catch(function() {
-      btn.disabled = false;
-      btn.textContent = 'Request booking';
+      payBtn.disabled = false;
+      payBtn.textContent = 'Confirm & pay deposit';
       alert('Something went wrong. Please email info@skyatx.com directly.');
     });
   }
