@@ -2,7 +2,7 @@
 // Called from doGet() in the calendar script when action=squareLink.
 // ─────────────────────────────────────────────────────────────────────────
 
-var SQUARE_ACCESS_TOKEN = 'sandbox-sq0idb-_VDrYYY6G-yp54bo1PEr0g';
+var SQUARE_ACCESS_TOKEN = 'EAAAl17INPumFMysBwIWwwKlFp8PGkMdVumzWkGRZvyl110_3lQbejPdUDBqCULd';
 var SQUARE_LOCATION_ID  = 'LTBG1Q0FW27C6';
 var SQUARE_BASE_URL     = 'https://connect.squareupsandbox.com'; // swap to https://connect.squareup.com for production
 
