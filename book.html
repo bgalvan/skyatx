@@ -708,6 +708,13 @@
     required.forEach(function(id) {
       var el = document.getElementById(id);
       var msg = document.getElementById('err-' + id);
+      if (!el) {
+        // Element not yet in DOM (e.g. Maps input still loading)
+        if (msg) msg.classList.add('visible');
+        if (!firstError) firstError = document.getElementById('property-location-wrap');
+        valid = false;
+        return;
+      }
       if (!el.value.trim()) {
         el.classList.add('error');
         if (msg) msg.classList.add('visible');
@@ -785,7 +792,7 @@
     // ─────────────────────────────────────────────────────────────
     // SETUP: Replace YOUR_FORM_ID with your Formspree form ID.
     // ─────────────────────────────────────────────────────────────
-    fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    fetch('https://formspree.io/f/xredkpjq', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
@@ -813,7 +820,7 @@
       // payment link URL. Create one at squareup.com/dashboard →
       // Online → Payment Links. Set the amount to match your deposit.
       // ─────────────────────────────────────────────────────────────
-      window.open('https://square.link/YOUR_SQUARE_PAYMENT_LINK', '_blank');
+      window.open('https://square.link/u/zIyx13ZE', '_blank');
     })
     .catch(function() {
       payBtn.disabled = false;
