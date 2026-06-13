@@ -189,6 +189,70 @@
       margin-top: 0.75rem;
     }
 
+    /* REVIEW MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 2px;
+      max-width: 480px;
+      width: 100%;
+      padding: 2rem;
+    }
+
+    .modal h2 { font-size: 1.25rem; margin-bottom: 0.25rem; }
+    .modal .modal-sub { font-size: 13px; color: var(--gray); margin-bottom: 1.5rem; }
+
+    .review-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--light);
+      font-size: 13px;
+    }
+    .review-row:last-of-type { border-bottom: none; }
+    .review-label { color: var(--gray); flex-shrink: 0; }
+    .review-val { text-align: right; }
+
+    .modal-deposit {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1.25rem 0 1.5rem;
+      padding: 0.85rem 1rem;
+      background: #f5f4f1;
+      border-radius: 2px;
+    }
+    .modal-deposit-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray); }
+    .modal-deposit-val { font-family: var(--serif); font-size: 1.5rem; font-weight: 300; }
+
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions .submit-btn { margin-top: 0; flex: 1; }
+    .modal-cancel {
+      flex: 0 0 auto;
+      padding: 1rem 1.25rem;
+      background: none;
+      border: 1px solid var(--light);
+      border-radius: 2px;
+      font-family: var(--sans);
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--gray);
+      transition: border-color 0.2s;
+    }
+    .modal-cancel:hover { border-color: #bbb; }
+
     /* SUCCESS */
     .success-state {
       display: none;
@@ -400,6 +464,32 @@
       <div class="fade-in">
         <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Request booking</button>
         <p class="legal-note">By submitting you agree to be contacted at the email and phone provided.</p>
+      </div>
+    </div>
+
+    <!-- REVIEW MODAL -->
+    <div class="modal-overlay" id="reviewModal">
+      <div class="modal">
+        <h2>Review your booking</h2>
+        <p class="modal-sub">Please confirm your details before paying the deposit.</p>
+
+        <div class="review-row"><span class="review-label">Name</span><span class="review-val" id="rev-name"></span></div>
+        <div class="review-row"><span class="review-label">Email</span><span class="review-val" id="rev-email"></span></div>
+        <div class="review-row"><span class="review-label">Phone</span><span class="review-val" id="rev-phone"></span></div>
+        <div class="review-row"><span class="review-label">Property</span><span class="review-val" id="rev-address"></span></div>
+        <div class="review-row"><span class="review-label">Date &amp; time</span><span class="review-val" id="rev-datetime"></span></div>
+        <div class="review-row"><span class="review-label">Services</span><span class="review-val" id="rev-services"></span></div>
+        <div class="review-row"><span class="review-label">Estimated total</span><span class="review-val" id="rev-total"></span></div>
+
+        <div class="modal-deposit">
+          <span class="modal-deposit-label">Deposit due today (50%)</span>
+          <span class="modal-deposit-val" id="rev-deposit"></span>
+        </div>
+
+        <div class="modal-actions">
+          <button class="modal-cancel" onclick="closeModal()">Go back</button>
+          <button class="submit-btn" id="payBtn" onclick="confirmAndPay()">Confirm &amp; pay deposit</button>
+        </div>
       </div>
     </div>
 
