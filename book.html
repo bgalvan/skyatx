@@ -376,7 +376,7 @@
           </div>
           <div class="field">
             <label for="shoottime">Preferred time</label>
-            <select id="shoottime">
+            <select id="shoottime" onchange="handleTimeChange(this)">
               <option value="">Select time</option>
               <option>Midday (11am – 2pm)</option>
               <option>Afternoon (2pm – 5pm)</option>
@@ -408,11 +408,11 @@
             </div>
           </label>
           <label class="service-card" id="sc-matterport">
-            <input type="checkbox" data-price="150" onchange="updateTotal(this,'sc-matterport')">
+            <input type="checkbox" data-price="200" onchange="updateTotal(this,'sc-matterport')">
             <div class="service-info">
-              <div class="service-name">Matterport 3D add-on</div>
+              <div class="service-name">Matterport 3D</div>
               <div class="service-desc">Interactive 3D walkthrough</div>
-              <div class="service-price">+$150</div>
+              <div class="service-price">+$200</div>
             </div>
           </label>
           <label class="service-card" id="sc-floorplan">
@@ -429,6 +429,14 @@
               <div class="service-name">Twilight add-on</div>
               <div class="service-desc">Shoot at sunset</div>
               <div class="service-price">+$100</div>
+            </div>
+          </label>
+          <label class="service-card" id="sc-website">
+            <input type="checkbox" data-price="50" onchange="updateTotal(this,'sc-website')">
+            <div class="service-info">
+              <div class="service-name">Property website add-on</div>
+              <div class="service-desc">Dedicated single-property listing site</div>
+              <div class="service-price">+$50</div>
             </div>
           </label>
           <label class="service-card" id="sc-video" style="grid-column:1/-1">
@@ -681,6 +689,28 @@
     });
   }
 
+
+  (function() {
+    var map = { photos: 'sc-photos', video: 'sc-video', drone: 'sc-drone', matterport: 'sc-matterport' };
+    var param = new URLSearchParams(window.location.search).get('service');
+    var cardId = param && map[param];
+    if (!cardId) return;
+    var cb = document.querySelector('#' + cardId + ' input[type="checkbox"]');
+    if (cb && !cb.checked) { cb.checked = true; updateTotal(cb, cardId); }
+  })();
+
+  function handleTimeChange(sel) {
+    var isTwilight = sel.value === 'Twilight / sunset';
+    var cb = document.querySelector('#sc-twilight input[type="checkbox"]');
+    if (!cb) return;
+    if (isTwilight && !cb.checked) {
+      cb.checked = true;
+      updateTotal(cb, 'sc-twilight');
+    } else if (!isTwilight && cb.checked) {
+      cb.checked = false;
+      updateTotal(cb, 'sc-twilight');
+    }
+  }
 
   function updateTotal(cb, cardId) {
     var card = document.getElementById(cardId);
