@@ -47,6 +47,13 @@ nav.scrolled { border-bottom-color: var(--light); }
   letter-spacing: 0.15em;
   text-decoration: none;
   color: var(--black);
+  display: flex;
+}
+
+.nav-logo img {
+  height: 34px;
+  width: auto;
+  display: block;
 }
 
 .nav-links {
