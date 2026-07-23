@@ -217,12 +217,68 @@
   </div>
 </div>
 
+<hr class="divider">
+
+<!-- LEAD MAGNET -->
+<div class="section">
+  <div class="signup fade-in" id="signup">
+    <div class="signup-text">
+      <span class="eyebrow">Free for agents</span>
+      <h2>The Listing Prep Checklist</h2>
+      <p>How to get a listing photo-ready in 48 hours — room by room, plus what we can
+         and can't fix in editing. Send it to your sellers before shoot day.</p>
+    </div>
+    <div>
+      <!-- posts into a hidden iframe so the page never navigates away -->
+      <form class="signup-form" target="ml-frame"
+            action="https://assets.mailerlite.com/jsonp/2529908/forms/193825084155102407/subscribe"
+            method="post">
+        <input type="email" name="fields[email]" placeholder="Your email" aria-label="Email" required autocomplete="email">
+        <input type="hidden" name="ml-submit" value="1">
+        <input type="hidden" name="anticsrf" value="true">
+        <button type="submit">Send me the checklist</button>
+      </form>
+      <p class="signup-note">One email with the checklist. No newsletter, unsubscribe anytime.</p>
+      <div class="signup-success">
+        <h3>Check your email</h3>
+        <p>Your checklist is on its way. Check your spam folder if you don't see it.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<iframe name="ml-frame" title="signup" style="display:none" aria-hidden="true"></iframe>
+
 <footer>
   <span>© 2026 SKYATX · Austin, TX</span>
   <span><a href="mailto:hello@skyatx.com">hello@skyatx.com</a></span>
 </footer>
 
 <script src="js/main.js"></script>
+<script>
+  // Lead magnet signup. Posts into the hidden iframe (the MailerLite endpoint is
+  // cross-origin and sends no CORS headers, so fetch can't read a response).
+  // The iframe's load event after submit is our signal the post went through.
+  (function () {
+    var wrap = document.getElementById('signup');
+    if (!wrap) return;
+    var form   = wrap.querySelector('.signup-form');
+    var btn    = form.querySelector('button');
+    var frame  = document.querySelector('iframe[name="ml-frame"]');
+    var sent   = false;
+
+    form.addEventListener('submit', function () {
+      sent = true;
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+    });
+
+    frame.addEventListener('load', function () {
+      if (!sent) return;              // ignore the initial about:blank load
+      wrap.classList.add('done');
+    });
+  })();
+</script>
 <script>
   function sendContact() {
     var name = document.getElementById('c-name');
