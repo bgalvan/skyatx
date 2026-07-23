@@ -1,0 +1,6 @@
+# Local backup of the uncompressed hero video (23 MB).
+# Kept on disk as a master copy; never committed — it would bloat the repo
+# permanently and GitHub Pages would serve it.
+herovideo-original.mp4
+
+.DS_Store
